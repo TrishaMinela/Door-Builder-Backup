@@ -53,7 +53,7 @@ export const f48slLowEStyleRules: Partial<Record<GridStyle, SideliteGridRules>> 
   'Arts & Crafts': { '3 Lite': { White: ['5/8"'] } },
   Contoured: { '4 Lite': { Champagne: ['11/16"'], White: ['11/16"'] } },
   Flat: {
-    '2 Lite': { Beige: both, Black: both, Bronze: ['5/8"'], Champagne: ['5/8"'], 'Bronze/White': both, Tan: ['5/8"'], White: both },
+    '2 Lite': { Beige: both, Black: both, Bronze: ['5/8"'], Champagne: ['5/8"'], 'Bronze/White': both, Tan: ['7/8"'], White: both },
     '3 Lite': { Beige: both, Black: both, Bronze: ['5/8"'], 'Bronze/White': both, Champagne: ['5/8"'], Tan: ['7/8"'], White: both },
     '4 Lite': { Beige: both, Black: both, Bronze: ['5/8"'], 'Bronze/White': both, Champagne: ['5/8"'], White: both },
   },
