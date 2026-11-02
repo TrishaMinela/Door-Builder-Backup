@@ -311,7 +311,7 @@ export function buildPreviewMasks(mask: HTMLImageElement, slab: HTMLImageElement
   return { finishUrl, glassUrl, glassFrameUrl: vectorMasks?.frameUrl, glassBounds, glassRegions: frameRegions, maskWidth: canvas.width, maskHeight: canvas.height }
 }
 
-export function fitGlassOverlayToMask(overlay: HTMLImageElement, width: number, height: number, maskBounds: PixelBounds, offsetY = 0, maskRegions?: PixelBounds[], edgeOverlapPx = GLASS_EDGE_OVERLAP_PX, containWithinMask = false, stretchToMaskWidth = false, stretchToMaskHeight = false) {
+export function fitGlassOverlayToMask(overlay: HTMLImageElement, width: number, height: number, maskBounds: PixelBounds, offsetY = 0, maskRegions?: PixelBounds[], edgeOverlapPx = GLASS_EDGE_OVERLAP_PX, containWithinMask = false, stretchToMaskWidth = false, stretchToMaskHeight = false, alignmentReference?: HTMLImageElement) {
   const sourceCanvas = document.createElement('canvas')
   sourceCanvas.width = overlay.naturalWidth
   sourceCanvas.height = overlay.naturalHeight
@@ -324,7 +324,17 @@ export function fitGlassOverlayToMask(overlay: HTMLImageElement, width: number, 
   const sourcePixels = sourceContext.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height)
   // Crop transparent PNG padding before any scale is calculated. Dark caming
   // remains part of the artwork because alpha—not luminance—defines content.
-  const sourceBounds = pixelBounds(sourcePixels, (_red, _green, _blue, alpha) => alpha > 2)
+  // Sparse grid bars share the clear pane's authored canvas. Their alpha
+  // bounds alone are not the pane bounds (notably horizontal-only patterns).
+  let alignmentPixels = sourcePixels
+  if (alignmentReference) {
+    sourceContext.clearRect(0, 0, sourceCanvas.width, sourceCanvas.height)
+    sourceContext.drawImage(alignmentReference, 0, 0, sourceCanvas.width, sourceCanvas.height)
+    alignmentPixels = sourceContext.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height)
+    sourceContext.clearRect(0, 0, sourceCanvas.width, sourceCanvas.height)
+    sourceContext.drawImage(overlay, 0, 0)
+  }
+  const sourceBounds = pixelBounds(alignmentPixels, (_red, _green, _blue, alpha) => alpha > 2)
   if (!sourceBounds) return null
 
   const sourceRegions = connectedAlphaBounds(sourcePixels)
@@ -514,6 +524,11 @@ export function DoorPreview({ style, finish, glass, hardware, showHardware = tru
   const clearNoGridOverlay = gridGlassUsesClearBase && maskCode
     ? clearNoGridGlass?.overlaysByDoorStyle[maskCode]
     : undefined
+  // F48's authored clear base has different padding from its opening mask.
+  // Fit it just like the grid above it, without changing CLiC/decorative glass.
+  const alignF48Grid = maskCode === 'F48' && previewGlass?.id === 'f48-clear-grids' && /\/F48INT\d+L/.test(glassOverlay ?? '')
+  const fitClearBase = maskCode === 'F482' || alignF48Grid
+  const gridAlignmentReference = alignF48Grid ? clearNoGridOverlay : undefined
   const [fittedGlassOverlay, setFittedGlassOverlay] = useState<{ source: string; maskSource: string; url: string } | null>(null)
   const [fittedClearBase, setFittedClearBase] = useState<{ source: string; maskSource: string; url: string } | null>(null)
   const [fittedSideliteGlass, setFittedSideliteGlass] = useState<{ source: string; slab: string; mask: string; url: string } | null>(null)
@@ -561,9 +576,8 @@ export function DoorPreview({ style, finish, glass, hardware, showHardware = tru
   const mainMaskReady = Boolean(surfaceDetailReady && previewImage && previewCandidates.includes(previewImage) && processedMask?.source === previewImage && processedMask.finishUrl)
   const mainGlassReady = !glassOverlay || isHrtDoor || isSatDoor
     || Boolean(fittedGlassOverlay?.source === glassOverlay && fittedGlassOverlay.maskSource === previewImage)
-  // Only F482 fits the base to its different opening. Other openings render
-  // the authored base directly; confirmLoadedSnapshot still decodes that image.
-  const clearBaseReady = !clearNoGridOverlay || maskCode !== 'F482' || Boolean(fittedClearBase?.source === clearNoGridOverlay && fittedClearBase.maskSource === previewImage)
+  // Capture must wait for the same fitted base that the live preview uses.
+  const clearBaseReady = !clearNoGridOverlay || !fitClearBase || Boolean(fittedClearBase?.source === clearNoGridOverlay && fittedClearBase.maskSource === previewImage)
   const sideliteMaskReady = frameSidelites === 'none' || Boolean(sslReliefReady && sideliteFinishMask && sideliteFinishMask.slab === sideliteAssetSrc && sideliteFinishMask.mask === sideliteMaskSrc && sideliteFinishMask.url)
   const sideliteGlassReady = frameSidelites === 'none' || !sideliteGlassSrc || !sideliteGlassNeedsFitting || Boolean(fittedSideliteGlass && fittedSideliteGlass.source === sideliteGlassSrc && fittedSideliteGlass.slab === sideliteAssetSrc && fittedSideliteGlass.mask === sideliteMaskSrc)
   const prairieGridReady = frameSidelites === 'none' || !sideliteGridIsPrairie || !sideliteGridColor || usesAuthoredSidelitePrairieColor || Boolean(tintedPrairieGrid && tintedPrairieGrid.source === fittedOrSourceSideliteGlass && tintedPrairieGrid.color === sideliteGridColor)
@@ -855,7 +869,7 @@ export function DoorPreview({ style, finish, glass, hardware, showHardware = tru
       return () => { cancelled = true }
     }
     const overlay = new Image()
-    overlay.onload = () => {
+    overlay.onload = async () => {
       if (cancelled) return
       const usesAdjustedArtsAndCrafts = Boolean(
         (maskCode === 'S' || maskCode === 'F48' || maskCode === 'F482')
@@ -876,17 +890,24 @@ export function DoorPreview({ style, finish, glass, hardware, showHardware = tru
         && glassOverlay.includes('/FPRA'),
       )
       const stretchPrairieToMaskHeight = maskCode === 'S' && glassOverlay.includes('/FPRA')
-      const url = fitGlassOverlayToMask(overlay, processedMask.maskWidth!, processedMask.maskHeight!, processedMask.glassBounds!, offsetY, maskRegions, GLASS_EDGE_OVERLAP_PX, fitPrairieInsideMask, stretchPrairieToMaskWidth, stretchPrairieToMaskHeight)
+      let alignmentReference: HTMLImageElement | undefined
+      if (gridAlignmentReference) {
+        alignmentReference = new Image()
+        alignmentReference.src = gridAlignmentReference
+        try { await alignmentReference.decode() } catch { if (!cancelled) setFittedGlassOverlay(null); return }
+        if (cancelled) return
+      }
+      const url = fitGlassOverlayToMask(overlay, processedMask.maskWidth!, processedMask.maskHeight!, processedMask.glassBounds!, offsetY, maskRegions, GLASS_EDGE_OVERLAP_PX, fitPrairieInsideMask, stretchPrairieToMaskWidth, stretchPrairieToMaskHeight, alignmentReference)
       setFittedGlassOverlay(url ? { source: glassOverlay, maskSource: previewImage, url } : null)
     }
     overlay.onerror = () => { if (!cancelled) setFittedGlassOverlay(null) }
     overlay.src = glassOverlay
     return () => { cancelled = true }
-  }, [glassOverlay, isHrtDoor, isSatDoor, maskCode, previewGlass?.id, previewImage, processedMask])
+  }, [glassOverlay, gridAlignmentReference, isHrtDoor, isSatDoor, maskCode, previewGlass?.id, previewImage, processedMask])
 
   useEffect(() => {
     let cancelled = false
-    if (maskCode !== 'F482' || !clearNoGridOverlay || !previewImage || processedMask?.source !== previewImage || !processedMask.glassBounds || !processedMask.maskWidth || !processedMask.maskHeight) {
+    if (!fitClearBase || !clearNoGridOverlay || !previewImage || processedMask?.source !== previewImage || !processedMask.glassBounds || !processedMask.maskWidth || !processedMask.maskHeight) {
       setFittedClearBase(null)
       return () => { cancelled = true }
     }
@@ -906,7 +927,7 @@ export function DoorPreview({ style, finish, glass, hardware, showHardware = tru
     overlay.onerror = () => { if (!cancelled) setFittedClearBase(null) }
     overlay.src = clearNoGridOverlay
     return () => { cancelled = true }
-  }, [clearNoGridOverlay, maskCode, previewImage, processedMask])
+  }, [clearNoGridOverlay, fitClearBase, previewImage, processedMask])
 
   const finishLayerStyle = useMemo(() => {
     if (!applyFinish || !hasMappedPreview || !finishMask || !finishColor) return undefined

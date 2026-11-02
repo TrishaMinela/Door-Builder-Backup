@@ -134,6 +134,12 @@ const fixtures = [
     item.appearance.gridMatchesFinish = true
     return { name: `three-quarter-sdl-${code}-${lites}`, ...item }
   })),
+  ...['F48', 'F482'].flatMap(code => [3, 4, 6, 8, 12].map(lites => {
+    const item = fixture(code, 'paint-clay', 'none', 'single', 'f48-clear-grids')
+    item.configuration.grid = { glassCoating: 'Standard', gridLocation: 'Internal', gridStyle: 'Flat', gridPattern: `${lites} Lite`, gridColor: 'White', gridWidth: '7/8"' }
+    item.appearance.glass = { ...item.configuration.glass!, overlaysByDoorStyle: { [code]: `/assets/hgi-assets/Glass/F48/INTERNAL GRIDS/F48INT${lites}LWH.webp` } }
+    return { name: `three-quarter-flat-${code}-${lites}`, ...item }
+  })),
 ]
 let liveRoot: Root | undefined
 Object.assign(window, {
