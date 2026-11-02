@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from
 import { ArrowLeft, ArrowRight, Check, Download, ExternalLink, Eye, FileText, HelpCircle, Home as HomeIcon, RotateCcw, Send, ShieldCheck } from 'lucide-react'
 import { DoorPreview, type DoorPreviewProps } from './components/DoorPreview'
 import { DoorStyleCard } from './components/DoorStyleCard'
+import { sidelitePreviewLabel } from './utils/sidelitePreviewLabel'
 import { HardwareOptionCard } from './components/HardwareOptionCard'
 import { OptionCard } from './components/OptionCard'
 import { QuoteForm } from './components/QuoteForm'
@@ -2300,7 +2301,7 @@ function DoorBuilderApp({ dealerSlug, dealerBrand }: { dealerSlug: string | null
             <span><b>Door Style</b><strong>{selectedStyle ? doorStyleDisplayName(selectedStyle) : 'Not selected'}</strong></span>
             <span><b>Finish</b><strong>{selectedFinish?.name ?? 'Not selected'}</strong></span>
             <span><b>Glass</b><strong>{compatibilitySupportsGlass ? (glassDisplayName(configuredGlass?.name ?? 'Not selected')) : 'Not applicable'}</strong></span>
-            <span><b>Sidelites</b><strong>{sideliteRelationshipLabel(sidelites || 'none', selectedDoorConfigurationType || 'single')}</strong></span>
+            <span className="sidelite-preview-summary"><b>Sidelites</b><strong>{sidelitePreviewLabel(sidelites || 'none', selectedDoorSwing?.id ?? 'LHI', selectedDoorConfigurationType || 'single', selectedSideliteStyle?.id, sideliteGlassConfiguration)}</strong></span>
             {selectedDoorConfigurationType === 'french' && <span><b>Lock Setup</b><strong>{selectedDoubleDoorLockPrep?.name ?? 'Not selected'}</strong></span>}
             <span><b>Hardware</b><strong>{selectedHardware ? hardwareDisplayName(selectedHardware) : 'Not selected'}</strong></span>
             <span><b>{isFrenchDoor ? 'Opening' : 'Door Swing'}</b><strong>{isFrenchDoor ? 'Both slabs operable' : selectedDoorSwing?.name ?? 'Not selected'}</strong></span>

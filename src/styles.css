@@ -3074,6 +3074,14 @@ body,.home-page,.builder-panel,.visualizer-page{background:var(--page)}
   text-align:right;
 }
 
+.app:not(.home-app) .mini-summary .sidelite-preview-summary strong{
+  white-space:normal;
+  overflow:visible;
+  overflow-wrap:anywhere;
+  text-overflow:clip;
+  text-align:right;
+}
+
 /* Desktop catalog/preview balance: more room for selection, persistent preview. */
 @media(min-width:901px){
   .app:not(.home-app):not(.visualizer-app):not(.review-confirmation-centered)>main,
