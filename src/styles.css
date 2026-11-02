@@ -1958,40 +1958,45 @@ body{overflow:hidden}
 .brand-home{display:block;flex:none;border:0;background:transparent;padding:0;color:inherit;line-height:0;cursor:pointer}
 .brand-home:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
 
-/* Public dealer links keep Home Guard visible while applying dealer-owned
-   accents only inside this scoped builder instance. */
-.dealer-cobranded>header{background:var(--dealer-secondary);border-bottom-color:var(--dealer-primary)}
-.dealer-cobranded .brand{gap:14px}
-.dealer-brand-mark{min-width:0;display:flex;align-items:center;gap:11px;color:#fff;line-height:1.15}
-.dealer-brand-divider{width:1px;height:42px;flex:none;background:currentColor;opacity:.28}
-.dealer-brand-mark>img{width:auto!important;height:46px!important;max-width:150px;object-fit:contain;filter:none!important}
-.dealer-brand-fallback{width:42px;height:42px;flex:none;border:1px solid currentColor;border-radius:50%;display:grid;place-items:center;background:#ffffff18;font-size:13px;font-weight:850;letter-spacing:.05em}
-.dealer-brand-name{min-width:0;display:grid;gap:2px;max-width:190px}
-.dealer-brand-name small{font-size:7px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;opacity:.72}
-.dealer-brand-name strong{overflow:hidden;font-size:11px;font-weight:800;letter-spacing:.01em;text-overflow:ellipsis;white-space:nowrap}
-.dealer-secondary-light>header,.dealer-secondary-light>header :is(.brand,.dealer-brand-mark,.home-return){color:#101417}
-.dealer-secondary-light>header .brand-home img{filter:none}
+/* Public dealer links make the dealer the primary brand while retaining a
+   deliberately secondary HGI product attribution. */
+.dealer-cobranded>header{background:var(--dealer-secondary);border-bottom-color:var(--dealer-primary);color:var(--dealer-secondary-foreground)}
+.dealer-cobranded .brand{gap:16px;color:inherit;max-width:calc(100% - 90px)}
+.dealer-brand-home{min-width:0;flex:none;border:0;background:transparent;padding:0;color:inherit;line-height:0}
+.dealer-brand-home:focus-visible{border-radius:4px;outline:3px solid var(--dealer-primary);outline-offset:4px}
+.dealer-brand-mark{min-width:0;display:flex;align-items:center;gap:10px;color:inherit;line-height:1.15}
+.dealer-brand-mark>img{display:block;width:auto!important;height:auto!important;max-width:min(250px,29vw);max-height:58px;object-fit:contain;filter:none!important}
+.dealer-brand-fallback{width:46px;height:46px;flex:none;border:1px solid currentColor;border-radius:50%;display:grid;place-items:center;background:#ffffff18;font-size:13px;font-weight:850;letter-spacing:.05em}
+.dealer-brand-fallback-name{max-width:min(280px,30vw);overflow:hidden;font-size:13px;line-height:1.25;text-align:left;text-overflow:ellipsis;white-space:nowrap}
+.hgi-attribution{min-width:0;display:flex;align-items:center;gap:10px;padding-left:16px;border-left:1px solid currentColor;color:inherit;line-height:1.25;opacity:.86}
+.hgi-attribution>span{max-width:142px;font-size:8px;font-weight:650;letter-spacing:.07em;text-transform:uppercase}
+.hgi-attribution>a{display:block;flex:none;color:inherit;line-height:0}
+.dealer-cobranded .hgi-attribution>a>img{display:block;width:96px!important;height:32px!important;object-fit:contain;filter:none!important}
+.hgi-attribution-white-logo{position:relative;display:block;width:112px;height:32px;overflow:hidden}
+.dealer-cobranded .hgi-attribution-white-logo>img{position:absolute;top:-48px;left:0;display:block;width:112px!important;height:112px!important;max-width:none;object-fit:contain;filter:none!important}
 .dealer-secondary-light>header .home-return{border-color:#10141755}
-.dealer-secondary-light>header .header-dealer-cta span{color:#101417}
 .dealer-cobranded :is(.start-building,.next,.submit-button,.visualizer-promo-copy button,.visualizer-download-button,.visualizer-apply-button,.wizard-navigation .wizard-continue){background:var(--dealer-primary);color:var(--dealer-primary-foreground)}
-.dealer-cobranded .header-dealer-cta a{border-color:var(--dealer-primary);background:var(--dealer-primary);color:var(--dealer-primary-foreground)}
 .dealer-cobranded :is(.option-card.selected,.glass-choice-card.selected,.hardware-option-card.selected){border-color:var(--dealer-primary);outline-color:var(--dealer-primary)}
 .dealer-cobranded :is(.stepper .active span,.check){box-shadow:0 0 0 3px color-mix(in srgb,var(--dealer-primary) 35%,transparent)}
 .dealer-cobranded :is(.visualizer-progress li.active,.hardware-finish-options button.selected .hardware-finish-color){border-color:var(--dealer-primary);outline-color:var(--dealer-primary)}
 .dealer-cobranded :is(button,a,input,textarea):focus-visible{outline-color:var(--dealer-primary)}
 @media(max-width:900px){
-  .dealer-brand-name{display:none}
-  .dealer-brand-mark>img{max-width:100px;height:38px!important}
-  .dealer-brand-divider{height:34px}
+  .dealer-brand-mark>img{max-width:180px;max-height:48px}
+  .dealer-brand-fallback-name{max-width:180px}
+  .hgi-attribution>span{display:none}
+  .hgi-attribution{padding-left:12px}
   .dealer-brand-fallback{width:36px;height:36px;font-size:11px}
 }
 @media(max-width:560px){
-  .dealer-cobranded .brand{gap:8px}
-  .dealer-cobranded .brand-home img{width:112px;height:42px}
+  .dealer-cobranded .brand{gap:9px;max-width:calc(100% - 48px)}
   .dealer-brand-mark{gap:8px}
-  .dealer-brand-mark>img{max-width:70px;height:32px!important}
-  .dealer-brand-divider{height:30px}
+  .dealer-brand-mark>img{max-width:120px;max-height:38px}
+  .dealer-brand-fallback-name{max-width:105px;font-size:10px;white-space:normal}
   .dealer-brand-fallback{width:32px;height:32px;font-size:10px}
+  .hgi-attribution{padding-left:8px}
+  .dealer-cobranded .hgi-attribution>a>img{width:70px!important;height:25px!important}
+  .hgi-attribution-white-logo{width:76px;height:25px}
+  .dealer-cobranded .hgi-attribution-white-logo>img{top:-33px;width:76px!important;height:76px!important}
 }
 
 /* Final responsive crop for the unified homepage house-and-door composite. */

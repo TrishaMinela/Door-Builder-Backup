@@ -82,6 +82,7 @@ assert.deepEqual(dealerBrandStyle(publicBrand), {
   '--dealer-primary': dealer.primary_color,
   '--dealer-primary-foreground': '#ffffff',
   '--dealer-secondary': dealer.secondary_color,
+  '--dealer-secondary-foreground': '#101417',
   '--peacock': dealer.primary_color,
   '--green': dealer.primary_color,
 })
@@ -89,14 +90,28 @@ assert.deepEqual(dealerBrandStyle({ ...publicBrand, primaryColor: 'url(javascrip
   '--dealer-primary': '#0d666c',
   '--dealer-primary-foreground': '#ffffff',
   '--dealer-secondary': '#05040b',
+  '--dealer-secondary-foreground': '#ffffff',
   '--peacock': '#0d666c',
   '--green': '#0d666c',
 })
 assert.equal(dealerBrandStyle({ ...publicBrand, primaryColor: '#f7e56b' })['--dealer-primary-foreground' as keyof ReturnType<typeof dealerBrandStyle>], '#101417')
+assert.equal(isLightBrandColor('#111827'), false)
+assert.equal(isLightBrandColor('#f0b429'), true)
+
+const appSource = await readFile(new URL('../src/App.tsx', import.meta.url), 'utf8')
+const footerSource = await readFile(new URL('../src/components/SiteFooter.tsx', import.meta.url), 'utf8')
+const attributionSource = await readFile(new URL('../src/components/HgiAttribution.tsx', import.meta.url), 'utf8')
+assert.doesNotMatch(appSource, /Presented by/)
+assert.match(appSource, /!dealerBrand && <div className="header-dealer-cta"/)
+assert.match(footerSource, /!dealerBrand && <a href="mailto:/)
+assert.match(footerSource, /!dealerBrand && <a href="https:\/\/www\.google\.com\/maps/)
+assert.match(attributionSource, /Door Builder & Visualizer provided by/)
+assert.match(attributionSource, /hgi-logo-white-dealer\.png/)
+assert.match(attributionSource, /hgi-logo-black\.webp/)
 
 const vercelConfiguration = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8')) as { rewrites: Array<{ source: string; destination: string }> }
 assert.deepEqual(vercelConfiguration.rewrites, [{ source: '/:dealerSlug([a-z0-9-]+)', destination: '/index.html' }])
 const dealerContextSource = await readFile(new URL('../api/dealer-context.ts', import.meta.url), 'utf8')
 assert.match(dealerContextSource, /from '\.\.\/server\/dealerResolution\.js'/)
 
-console.info('Verified public-safe dealer branding lookup, slug isolation, inactive/missing handling, reserved paths, and branding fallbacks.')
+console.info('Verified public-safe dealer branding lookup, WCAG contrast selection, dealer-only layout rules, slug isolation, and safe fallbacks.')

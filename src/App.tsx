@@ -8,6 +8,7 @@ import { OptionCard } from './components/OptionCard'
 import { QuoteForm } from './components/QuoteForm'
 import { SubmissionConfirmation } from './components/SubmissionConfirmation'
 import { SiteFooter } from './components/SiteFooter'
+import { HgiAttribution } from './components/HgiAttribution'
 import { DealerMode, useDealerSession } from './components/DealerMode'
 import { DealerContextGate } from './components/DealerContextGate'
 import { DealerBrandMark } from './components/DealerBrandMark'
@@ -2057,16 +2058,24 @@ function DoorBuilderApp({ dealerSlug, dealerBrand }: { dealerSlug: string | null
       <div className="dealer-mode-banner-slot" ref={setDealerBannerTarget} />
       <header>
         <div className="brand">
-          <button className="brand-home" type="button" aria-label="Go to home page" onClick={() => showScreen('home')}>
-            <img src="/assets/branding/hgi-logo-black.webp" alt="Home Guard Industries Doors and Windows" />
-          </button>
-          {dealerBrand && <DealerBrandMark brand={dealerBrand} onDarkBackground={!isLightBrandColor(dealerBrand.secondaryColor)} />}
-          {screen !== 'home' && <span className="app-name"><strong>Home Guard Door Builder</strong></span>}
+          {dealerBrand
+            ? <>
+              <button className="dealer-brand-home" type="button" aria-label={`Go to ${dealerBrand.companyName} Door Builder home`} onClick={() => showScreen('home')}>
+                <DealerBrandMark brand={dealerBrand} onDarkBackground={!isLightBrandColor(dealerBrand.secondaryColor)} />
+              </button>
+              <HgiAttribution onDarkBackground={!isLightBrandColor(dealerBrand.secondaryColor)} />
+            </>
+            : <>
+              <button className="brand-home" type="button" aria-label="Go to home page" onClick={() => showScreen('home')}>
+                <img src="/assets/branding/hgi-logo-black.webp" alt="Home Guard Industries Doors and Windows" />
+              </button>
+              {screen !== 'home' && <span className="app-name"><strong>Home Guard Door Builder</strong></span>}
+            </>}
         </div>
         <div className="header-actions">
           {screen !== 'home' && <>
           <button className="home-return" aria-label="Home" onClick={() => showScreen('home')}><HomeIcon size={17} /><span>Home</span></button></>}
-          <div className="header-dealer-cta"><span>Want this door? <strong>Connect with a Dealer</strong></span><a href="https://homeguardindustries.com/find-a-home-guard-dealer-hub/" target="_blank" rel="noreferrer">Find a Dealer <ExternalLink size={14} /></a></div>
+          {!dealerBrand && <div className="header-dealer-cta"><span>Want this door? <strong>Connect with a Dealer</strong></span><a href="https://homeguardindustries.com/find-a-home-guard-dealer-hub/" target="_blank" rel="noreferrer">Find a Dealer <ExternalLink size={14} /></a></div>}
         </div>
       </header>
 

@@ -10,17 +10,17 @@ html:has(.shared-site-footer),body:has(.shared-site-footer){height:auto;min-heig
 .shared-site-footer .site-footer-logo{display:block;width:160px;height:auto;border:0;border-radius:0}
 .shared-site-footer .site-footer-logo img{display:block;width:100%;height:auto}
 .shared-site-footer .site-footer-branding{display:grid;align-items:center;gap:16px;min-width:0}
-.shared-site-footer .dealer-brand-mark{color:#fff}
-.shared-site-footer .dealer-brand-mark.compact .dealer-brand-divider{display:none}
-.shared-site-footer .dealer-brand-mark.compact>img{max-width:140px;height:40px!important}
-.shared-site-footer .dealer-brand-mark.compact .dealer-brand-name{max-width:155px}
 .dealer-cobranded>.shared-site-footer.site-footer{background:var(--dealer-secondary);border-top:3px solid var(--dealer-primary)}
 .dealer-cobranded>.shared-site-footer .site-footer-contact a svg,
-.dealer-cobranded>.shared-site-footer .site-footer-feedback small span{color:var(--dealer-primary)}
-.dealer-cobranded>.shared-site-footer .site-footer-actions button.site-feedback-trigger{border-color:var(--dealer-primary);background:var(--dealer-primary);color:#fff}
-.dealer-secondary-light>.shared-site-footer.site-footer,
-.dealer-secondary-light>.shared-site-footer :is(a,.dealer-brand-mark,.site-footer-feedback small){color:#101417}
-.dealer-secondary-light>.shared-site-footer .site-footer-logo img{filter:invert(1)}
+.dealer-cobranded>.shared-site-footer .site-footer-feedback small span{color:var(--dealer-secondary-foreground)}
+.dealer-cobranded>.shared-site-footer .site-footer-actions button.site-feedback-trigger{border-color:var(--dealer-primary);background:var(--dealer-primary);color:var(--dealer-primary-foreground)}
+.dealer-cobranded>.shared-site-footer.site-footer,
+.dealer-cobranded>.shared-site-footer :is(a,.site-footer-feedback small){color:var(--dealer-secondary-foreground)}
+.dealer-cobranded>.shared-site-footer .hgi-attribution{padding-left:0;border-left:0;opacity:1}
+.dealer-cobranded>.shared-site-footer .hgi-attribution>span{display:block;max-width:none}
+.dealer-cobranded>.shared-site-footer .hgi-attribution>a>img{width:105px!important;height:34px!important}
+.dealer-cobranded>.shared-site-footer .hgi-attribution-white-logo{width:112px;height:32px}
+.dealer-cobranded>.shared-site-footer .hgi-attribution-white-logo>img{top:-48px;width:112px!important;height:112px!important}
 .shared-site-footer .site-footer-contact{display:grid;grid-template-columns:auto auto;align-items:start;justify-content:center;gap:18px 28px;width:auto;min-width:0;flex-direction:row}
 .shared-site-footer :is(.site-footer-direct,.site-footer-location){display:grid;gap:12px;max-width:100%;align-items:start;justify-content:start;flex-direction:row}
 .shared-site-footer .site-footer-contact a{display:flex!important;align-items:center;justify-content:flex-start;gap:10px;width:auto;height:auto;min-height:32px;border:0;border-radius:0;font-size:13px;white-space:normal}

@@ -9,10 +9,12 @@ function safeColor(value: string | null, fallback: string) {
 
 export function dealerBrandStyle(brand: PublicDealerBrand): CSSProperties {
   const primary = safeColor(brand.primaryColor, '#0d666c')
+  const secondary = safeColor(brand.secondaryColor, '#05040b')
   return {
     '--dealer-primary': primary,
     '--dealer-primary-foreground': isLightBrandColor(primary) ? '#101417' : '#ffffff',
-    '--dealer-secondary': safeColor(brand.secondaryColor, '#05040b'),
+    '--dealer-secondary': secondary,
+    '--dealer-secondary-foreground': isLightBrandColor(secondary) ? '#101417' : '#ffffff',
     '--peacock': primary,
     '--green': primary,
   } as CSSProperties
@@ -31,8 +33,12 @@ export function dealerLogo(brand: PublicDealerBrand, onDarkBackground = false) {
 
 export function isLightBrandColor(value: string | null) {
   if (!value || !HEX_COLOR.test(value)) return false
-  const red = Number.parseInt(value.slice(1, 3), 16)
-  const green = Number.parseInt(value.slice(3, 5), 16)
-  const blue = Number.parseInt(value.slice(5, 7), 16)
-  return (red * 299 + green * 587 + blue * 114) / 1000 >= 150
+  const channel = (start: number) => {
+    const srgb = Number.parseInt(value.slice(start, start + 2), 16) / 255
+    return srgb <= 0.04045 ? srgb / 12.92 : ((srgb + 0.055) / 1.055) ** 2.4
+  }
+  const luminance = 0.2126 * channel(1) + 0.7152 * channel(3) + 0.0722 * channel(5)
+  const contrastWithBlack = (luminance + 0.05) / 0.05
+  const contrastWithWhite = 1.05 / (luminance + 0.05)
+  return contrastWithBlack >= contrastWithWhite
 }

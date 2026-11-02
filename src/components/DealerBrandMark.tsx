@@ -5,18 +5,17 @@ import { dealerInitials, dealerLogo } from '../utils/dealerBranding'
 type Props = {
   brand: PublicDealerBrand
   onDarkBackground?: boolean
-  compact?: boolean
 }
 
-export function DealerBrandMark({ brand, onDarkBackground = false, compact = false }: Props) {
-  const [imageFailed, setImageFailed] = useState(false)
+export function DealerBrandMark({ brand, onDarkBackground = false }: Props) {
+  const [failedLogo, setFailedLogo] = useState<string | null>(null)
   const logo = dealerLogo(brand, onDarkBackground)
+  const showFallback = !logo || failedLogo === logo
 
-  return <div className={`dealer-brand-mark${compact ? ' compact' : ''}`} aria-label={`In partnership with ${brand.companyName}`}>
-    <span className="dealer-brand-divider" aria-hidden="true" />
-    {!imageFailed && logo
-      ? <img src={logo} alt={`${brand.companyName} logo`} onError={() => setImageFailed(true)} />
+  return <div className="dealer-brand-mark" aria-label={`${brand.companyName} dealer branding`}>
+    {!showFallback
+      ? <img src={logo} alt={`${brand.companyName} logo`} onError={() => setFailedLogo(logo)} />
       : <span className="dealer-brand-fallback" aria-hidden="true">{dealerInitials(brand.companyName)}</span>}
-    <span className="dealer-brand-name"><small>Presented by</small><strong>{brand.companyName}</strong></span>
+    {showFallback && <strong className="dealer-brand-fallback-name">{brand.companyName}</strong>}
   </div>
 }

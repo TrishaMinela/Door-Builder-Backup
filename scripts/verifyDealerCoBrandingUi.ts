@@ -21,10 +21,13 @@ try {
   await rootPage.goto(`http://127.0.0.1:${port}/`)
   await rootPage.getByRole('button', { name: 'Start Building Your Door' }).waitFor()
   assert.equal(await rootPage.locator('.dealer-cobranded,.dealer-brand-mark').count(), 0)
+  assert.equal(await rootPage.getByRole('link', { name: 'Find a Dealer' }).count(), 1)
+  assert.equal(await rootPage.getByRole('link', { name: 'Email Home Guard Industries' }).count(), 1)
+  assert.equal(await rootPage.getByRole('link', { name: 'View Home Guard Industries on Google Maps' }).count(), 1)
   assert.equal(await rootPage.locator('header').evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(255, 255, 255)')
   await rootPage.close()
 
-  for (const [width, height] of [[1440, 1000], [820, 1180], [390, 844]]) {
+  for (const [width, height] of [[1440, 1000], [820, 1180], [390, 844], [320, 740]]) {
     const page = await browser.newPage({ viewport: { width, height } })
     const errors: string[] = []
     page.on('pageerror', error => errors.push(error.message))
@@ -46,20 +49,28 @@ try {
     await page.getByRole('button', { name: 'Start Building Your Door' }).waitFor()
     assert.equal(await page.locator('.dealer-cobranded').count(), 1)
     assert.equal(await page.locator('header .dealer-brand-mark').count(), 1)
+    assert.equal(await page.locator('.site-footer .dealer-brand-mark').count(), 0)
     assert.equal(await page.locator('header .dealer-brand-fallback').innerText(), 'TD')
-    assert.match(await page.locator('header .dealer-brand-mark').getAttribute('aria-label') ?? '', /TEST Dealer/)
+    assert.match(await page.locator('header .dealer-brand-mark').getAttribute('aria-label') ?? '', /TEST Dealer.*branding/)
+    assert.equal(await page.getByText(/Presented by/i).count(), 0)
+    assert.equal(await page.getByRole('link', { name: 'Find a Dealer' }).count(), 0)
+    assert.equal(await page.locator('header .hgi-attribution').count(), 1)
+    assert.equal(await page.locator('.site-footer .hgi-attribution').count(), 1)
+    assert.equal(await page.getByRole('link', { name: 'Email Home Guard Industries' }).count(), 0)
+    assert.equal(await page.getByRole('link', { name: 'View Home Guard Industries on Google Maps' }).count(), 0)
+    assert.equal(await page.getByRole('link', { name: 'Call Home Guard Industries at 1-800-525-1885' }).count(), 1)
+    assert.equal(await page.getByRole('link', { name: 'Visit the Home Guard Industries website' }).count(), 1)
     assert.equal(await page.locator('header').evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(240, 180, 41)')
+    assert.equal(await page.locator('header').evaluate(element => getComputedStyle(element).color), 'rgb(16, 20, 23)')
     assert.equal(await page.locator('.start-building').evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(36, 86, 166)')
-    assert.equal(await page.locator('.header-dealer-cta a').evaluate(element => getComputedStyle(element).color), 'rgb(255, 255, 255)')
     assert.equal(await page.locator('.site-footer').evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(240, 180, 41)')
-    assert.equal(await page.locator('.site-footer .dealer-brand-mark').count(), 1)
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
     assert.match(await page.title(), /^TEST Dealer - Portal Access QA \| Home Guard Door Builder$/)
     assert.equal(await page.locator('meta[name="robots"]').getAttribute('content'), 'noindex,follow')
     await page.screenshot({ path: `/tmp/hgi-dealer-cobranding/dealer-${width}.png`, fullPage: true })
     await page.getByRole('button', { name: 'Start Building Your Door' }).click()
     await page.locator('.builder-panel').waitFor()
-    assert.equal(await page.locator('.dealer-cobranded .dealer-brand-mark').count() >= 2, true)
+    assert.equal(await page.locator('.dealer-cobranded .dealer-brand-mark').count(), 1)
     assert.equal(await page.evaluate(() => location.pathname), '/test-dealer-portal-access-qa')
     await page.goto(`http://127.0.0.1:${port}/`)
     await page.getByRole('button', { name: 'Start Building Your Door' }).waitFor()
@@ -67,6 +78,33 @@ try {
     assert.deepEqual(errors, [])
     await page.close()
   }
+
+  const darkPage = await browser.newPage({ viewport: { width: 1440, height: 1000 } })
+  const transparentPng = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAFgwJ/lT5vWQAAAABJRU5ErkJggg==', 'base64')
+  await darkPage.route('https://cdn.example.invalid/**', route => route.fulfill({ status: 200, contentType: 'image/png', body: transparentPng }))
+  await darkPage.route('**/api/dealer-context?slug=dark-test-dealer', route => route.fulfill({
+    status: 200,
+    json: {
+      available: true,
+      dealer: {
+        slug: 'dark-test-dealer',
+        companyName: 'Dark Test Dealer',
+        logoUrl: 'https://cdn.example.invalid/dealer-primary.png',
+        logoLightUrl: 'https://cdn.example.invalid/dealer-light.png',
+        primaryColor: '#2456a6',
+        secondaryColor: '#111827',
+      },
+    },
+  }))
+  await darkPage.goto(`http://127.0.0.1:${port}/dark-test-dealer`)
+  await darkPage.getByRole('button', { name: 'Start Building Your Door' }).waitFor()
+  assert.match(await darkPage.locator('header .dealer-brand-mark img').getAttribute('src') ?? '', /dealer-light\.png/)
+  assert.match(await darkPage.locator('header .hgi-attribution img').getAttribute('src') ?? '', /hgi-logo-white-dealer\.png/)
+  assert.match(await darkPage.locator('.site-footer .hgi-attribution img').getAttribute('src') ?? '', /hgi-logo-white-dealer\.png/)
+  assert.equal(await darkPage.locator('header').evaluate(element => getComputedStyle(element).color), 'rgb(255, 255, 255)')
+  assert.equal(await darkPage.locator('.site-footer').evaluate(element => getComputedStyle(element).color), 'rgb(255, 255, 255)')
+  await darkPage.screenshot({ path: '/tmp/hgi-dealer-cobranding/dealer-dark-1440.png', fullPage: true })
+  await darkPage.close()
 
   const invalidPage = await browser.newPage({ viewport: { width: 390, height: 844 } })
   await invalidPage.route('**/api/dealer-context?slug=unknown-dealer', route => route.fulfill({ status: 404, json: { error: 'This dealer link is unavailable.' } }))
