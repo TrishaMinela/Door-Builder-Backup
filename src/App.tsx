@@ -782,7 +782,7 @@ function DoorBuilderApp({ dealerSlug, dealerBrand }: { dealerSlug: string | null
   const compatibleGridPatterns = gridPathId === 'external'
     ? allGridPatterns.filter((item) => (usesSGridFlow ? ['4 Lite', '9 Lite'] : ['8 Lite', '10 Lite', '15 Lite']).includes(item.id))
     : gridPathId === 'sdl'
-      ? allGridPatterns.filter((item) => (usesSGridFlow ? ['9 Lite'] : usesF48GridFlow ? ['4 Lite'] : ['6 Lite', '8 Lite', '15 Lite']).includes(item.id))
+      ? allGridPatterns.filter((item) => (usesSGridFlow ? ['9 Lite'] : usesF48GridFlow ? ['4 Lite', '6 Lite', '12 Lite'] : ['6 Lite', '8 Lite', '15 Lite']).includes(item.id))
       : allGridPatterns.filter((item) => Object.prototype.hasOwnProperty.call(standardPatternRules, item.id) || Object.prototype.hasOwnProperty.call(lowEPatternRules, item.id))
   const compatibleGridColors: GridColor[] = gridStyle === 'Prairie'
     ? [...new Set([...Object.keys(usesSGridFlow ? sStandardPrairieRules : usesF48GridFlow ? f48StandardPrairieRules : prairieGridRules), ...Object.keys(usesSGridFlow ? sLowEPrairieRules : usesF48GridFlow ? f48LowEPrairieRules : lowEPrairieGridRules)])] as GridColor[]
