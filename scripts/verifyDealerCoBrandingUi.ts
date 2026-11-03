@@ -145,6 +145,27 @@ try {
   assert.equal(await lowContrastPage.locator('.dealer-hero-logo .dealer-brand-mark').count(), 1)
   assert.match(await lowContrastPage.locator('.dealer-hero-logo img').getAttribute('src') ?? '', /dealer-primary\.png/)
   assert.equal(await lowContrastPage.locator('.dealer-brand-mark').count(), 1)
+  const heroLogoStyle = await lowContrastPage.locator('.dealer-hero-logo').evaluate((element) => {
+    const style = getComputedStyle(element)
+    return { boxShadow: style.boxShadow, borderStyle: style.borderStyle, borderRadius: style.borderRadius }
+  })
+  assert.equal(heroLogoStyle.boxShadow, 'none')
+  assert.equal(heroLogoStyle.borderStyle, 'none')
+  assert.equal(heroLogoStyle.borderRadius, '0px')
+  const heroAlignment = await lowContrastPage.locator('.home-hero-copy').evaluate((element) => {
+    const style = getComputedStyle(element)
+    const rect = element.getBoundingClientRect()
+    return { alignItems: style.alignItems, textAlign: style.textAlign, center: rect.left + rect.width / 2 }
+  })
+  assert.equal(heroAlignment.alignItems, 'center')
+  assert.equal(heroAlignment.textAlign, 'center')
+  assert.ok(Math.abs(heroAlignment.center - 410) < 2)
+  assert.match(
+    await lowContrastPage.locator('.site-footer .hgi-attribution').innerText(),
+    /door builder & visualizer provided by/i,
+  )
+  assert.equal(await lowContrastPage.locator('.site-footer').getByText('getintouch@homeguardindustries.com').count(), 0)
+  assert.equal(await lowContrastPage.locator('.site-footer').getByText('13101 Main Street').count(), 0)
   assert.equal(await lowContrastPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
   await lowContrastPage.screenshot({ path: '/tmp/hgi-dealer-cobranding/dealer-low-contrast-820.png', fullPage: true })
   await lowContrastPage.close()
@@ -156,7 +177,25 @@ try {
   assert.equal(await invalidPage.locator('.dealer-brand-mark').count(), 0)
   await invalidPage.close()
 
-  console.info('Verified root HGI branding, dealer co-branding and fallback identity at desktop/tablet/mobile, route persistence, and unknown-dealer safety.')
+  for (const [width, height] of [[1440, 1000], [820, 1180], [390, 844], [320, 740]]) {
+    const loadingPage = await browser.newPage({ viewport: { width, height } })
+    await loadingPage.route('**/api/dealer-context?slug=loading-dealer', async route => {
+      await new Promise(resolve => setTimeout(resolve, 700))
+      await route.fulfill({ status: 404, json: { error: 'This dealer link is unavailable.' } })
+    })
+    await loadingPage.goto(`http://127.0.0.1:${port}/loading-dealer`)
+    const loadingCard = loadingPage.getByRole('heading', { name: 'Checking dealer link…' }).locator('..')
+    await loadingCard.waitFor()
+    const cardRect = await loadingCard.boundingBox()
+    const footerRect = await loadingPage.locator('.site-footer').boundingBox()
+    assert.ok(cardRect && Math.abs(cardRect.x + cardRect.width / 2 - width / 2) < 2, `Loading card is horizontally centered at ${width}px`)
+    assert.ok(cardRect && footerRect && Math.abs(cardRect.y + cardRect.height / 2 - footerRect.y / 2) < 3, `Loading card is vertically centered in usable space at ${width}px`)
+    assert.ok(footerRect && Math.abs(footerRect.y + footerRect.height - height) < 2, `Loading footer rests at viewport bottom at ${width}px`)
+    assert.equal(await loadingPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
+    await loadingPage.close()
+  }
+
+  console.info('Verified root HGI isolation, centered dealer landing layout, flat logo presentation, responsive footer, loading centering, route persistence, and unknown-dealer safety.')
 } finally {
   await browser?.close()
   server.kill('SIGTERM')

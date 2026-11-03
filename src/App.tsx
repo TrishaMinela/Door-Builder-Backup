@@ -2053,7 +2053,7 @@ function DoorBuilderApp({ dealerSlug, dealerBrand }: { dealerSlug: string | null
 
   return (
     <div
-      className={`app builder-typography ${screen === 'home' ? 'home-app' : screen === 'visualizer' ? 'visualizer-app' : screen === 'customer-form' ? 'customer-form-app' : ''} ${screen === 'builder' && isVisualizerEditing ? 'visualizer-editing' : ''} ${screen === 'builder' && currentPage === 'review' && submitted ? 'review-confirmation-centered' : ''} ${dealerBrand ? 'dealer-cobranded' : ''} ${dealerBrand && isLightBrandColor(dealerBrand.secondaryColor) ? 'dealer-secondary-light' : ''}`}
+      className={`app builder-typography ${screen === 'home' ? 'home-app' : screen === 'visualizer' ? 'visualizer-app' : screen === 'customer-form' ? 'customer-form-app' : ''} ${screen === 'builder' && isVisualizerEditing ? 'visualizer-editing' : ''} ${screen === 'builder' && currentPage === 'review' && submitted ? 'review-confirmation-centered' : ''} ${dealerBrand ? 'dealer-cobranded' : ''} ${dealerBrand && dealerLogoLayout?.placement === 'hero' ? 'dealer-logo-in-hero' : ''} ${dealerBrand && isLightBrandColor(dealerBrand.secondaryColor) ? 'dealer-secondary-light' : ''}`}
       style={dealerBrand ? dealerBrandStyle(dealerBrand) : undefined}
     >
       {dealerBrand && dealerCustomFontCss(dealerBrand) && <style>{dealerCustomFontCss(dealerBrand)}</style>}

@@ -41,7 +41,7 @@ export function SiteFooter({ currentStep, configuration, dealerAccess, dealerBra
   return <footer className="site-footer shared-site-footer" ref={footerRef}>
     <div className="site-footer-branding">
       {dealerBrand
-        ? <HgiAttribution onDarkBackground={dealerSurfaceIsDark} compact />
+        ? <HgiAttribution onDarkBackground={dealerSurfaceIsDark} />
         : <a className="site-footer-logo" href="https://homeguardindustries.com" target="_blank" rel="noreferrer" aria-label="Home Guard Industries website"><img src="/assets/branding/hgi-logo-white.png" alt="Home Guard Industries" /></a>}
     </div>
     <div className="site-footer-contact">
