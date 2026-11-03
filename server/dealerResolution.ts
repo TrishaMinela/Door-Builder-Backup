@@ -13,6 +13,18 @@ type DealerRow = {
   primary_color: string | null
   secondary_color: string | null
   website: string | null
+  heading_font_family: string | null
+  heading_font_weight: number | null
+  heading_font_size: number | null
+  body_font_family: string | null
+  body_font_weight: number | null
+  body_font_size: number | null
+  custom_heading_font_url: string | null
+  custom_heading_font_name: string | null
+  custom_heading_font_weight: number | null
+  custom_body_font_url: string | null
+  custom_body_font_name: string | null
+  custom_body_font_weight: number | null
 }
 
 export class DealerResolutionError extends Error {
@@ -36,7 +48,7 @@ async function resolveDealer(dealerSlug: unknown): Promise<DealerRow | null> {
   if (!isValidDealerSlug(slug)) throw new DealerResolutionError(400, 'This dealer link is unavailable.')
 
   const { supabaseUrl, serviceRoleKey } = supabaseCredentials()
-  const query = new URLSearchParams({ select: 'id,is_active,slug,company_name,logo_url,logo_light_url,primary_color,secondary_color,website', slug: `eq.${slug}`, limit: '2' })
+  const query = new URLSearchParams({ select: 'id,is_active,slug,company_name,logo_url,logo_light_url,primary_color,secondary_color,website,heading_font_family,heading_font_weight,heading_font_size,body_font_family,body_font_weight,body_font_size,custom_heading_font_url,custom_heading_font_name,custom_heading_font_weight,custom_body_font_url,custom_body_font_name,custom_body_font_weight', slug: `eq.${slug}`, limit: '2' })
   const result = await fetch(`${supabaseUrl}/rest/v1/dealers?${query}`, {
     headers: { apikey: serviceRoleKey, Authorization: `Bearer ${serviceRoleKey}` },
   })
@@ -64,7 +76,30 @@ export async function resolveDealerBrand(dealerSlug: unknown): Promise<PublicDea
     primaryColor: dealer.primary_color,
     secondaryColor: dealer.secondary_color,
     websiteUrl: safePublicWebsite(dealer.website),
+    headingFontFamily: safeFontFamily(dealer.heading_font_family),
+    headingFontWeight: safeFontWeight(dealer.heading_font_weight),
+    headingFontSize: safeFontSize(dealer.heading_font_size,24,72),
+    bodyFontFamily: safeFontFamily(dealer.body_font_family),
+    bodyFontWeight: safeFontWeight(dealer.body_font_weight),
+    bodyFontSize: safeFontSize(dealer.body_font_size,14,22),
+    customHeadingFontUrl: safeFontUrl(dealer.custom_heading_font_url),
+    customHeadingFontName: safeFontName(dealer.custom_heading_font_name),
+    customHeadingFontWeight: safeFontWeight(dealer.custom_heading_font_weight),
+    customBodyFontUrl: safeFontUrl(dealer.custom_body_font_url),
+    customBodyFontName: safeFontName(dealer.custom_body_font_name),
+    customBodyFontWeight: safeFontWeight(dealer.custom_body_font_weight),
   }
+}
+
+const fontFamilies=new Set(['system','arial','helvetica','verdana','tahoma','trebuchet','georgia','times','courier','montserrat','caladea','custom'])
+const fontWeights=new Set([300,400,500,600,700,800])
+function safeFontFamily(value:string|null){return value&&fontFamilies.has(value)?value:null}
+function safeFontWeight(value:number|null){return value&&fontWeights.has(value)?value:null}
+function safeFontSize(value:number|null,min:number,max:number){return Number.isInteger(value)&&value!>=min&&value!<=max?value:null}
+function safeFontName(value:string|null){return value&&/^[\w .-]{1,80}$/.test(value)?value:null}
+function safeFontUrl(value:string|null){
+  const url=safePublicWebsite(value)
+  return url&&/\/storage\/v1\/object\/public\/dealer-fonts\//.test(url)&&/\.(woff2?|WOFF2?)(\?|$)/.test(url)?url:null
 }
 
 function safePublicWebsite(value: string | null) {

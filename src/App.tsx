@@ -12,7 +12,7 @@ import { DealerMode, useDealerSession } from './components/DealerMode'
 import { DealerContextGate } from './components/DealerContextGate'
 import { DealerBrandMark } from './components/DealerBrandMark'
 import type { PublicDealerBrand } from './types/dealerBranding'
-import { dealerBrandStyle, dealerLogoPlacement, isLightBrandColor } from './utils/dealerBranding'
+import { dealerBrandStyle, dealerCustomFontCss, dealerLogoPlacement, isLightBrandColor } from './utils/dealerBranding'
 import { sortByDisplayLabel } from './utils/sortByDisplayLabel'
 import { validOptionId } from './utils/optionSelection'
 import { builderGroupForPage, builderGroupStart, type BuilderGroup } from './utils/builderNavigation'
@@ -2056,6 +2056,7 @@ function DoorBuilderApp({ dealerSlug, dealerBrand }: { dealerSlug: string | null
       className={`app builder-typography ${screen === 'home' ? 'home-app' : screen === 'visualizer' ? 'visualizer-app' : screen === 'customer-form' ? 'customer-form-app' : ''} ${screen === 'builder' && isVisualizerEditing ? 'visualizer-editing' : ''} ${screen === 'builder' && currentPage === 'review' && submitted ? 'review-confirmation-centered' : ''} ${dealerBrand ? 'dealer-cobranded' : ''} ${dealerBrand && isLightBrandColor(dealerBrand.secondaryColor) ? 'dealer-secondary-light' : ''}`}
       style={dealerBrand ? dealerBrandStyle(dealerBrand) : undefined}
     >
+      {dealerBrand && dealerCustomFontCss(dealerBrand) && <style>{dealerCustomFontCss(dealerBrand)}</style>}
       <div className="dealer-mode-banner-slot" ref={setDealerBannerTarget} />
       <header>
         {dealerBrand ? <>

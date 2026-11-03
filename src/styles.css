@@ -1990,6 +1990,12 @@ body{overflow:hidden}
 .dealer-cobranded :is(.stepper .active span,.check){box-shadow:0 0 0 3px color-mix(in srgb,var(--dealer-primary) 35%,transparent)}
 .dealer-cobranded :is(.visualizer-progress li.active,.hardware-finish-options button.selected .hardware-finish-color){border-color:var(--dealer-primary);outline-color:var(--dealer-primary)}
 .dealer-cobranded :is(button,a,input,textarea):focus-visible{outline-color:var(--dealer-primary)}
+.dealer-cobranded{font-family:var(--dealer-body-font,var(--font-body));font-weight:var(--dealer-body-weight,inherit)}
+.dealer-cobranded :is(button,input,textarea,select,label,p,small,span,a){font-family:var(--dealer-body-font,var(--font-body))}
+.dealer-cobranded :is(.home-hero h1,.section-heading h1,.success h1,.summary-title h2,.form-card h2,.visualizer-heading h1,.visualizer-card-heading h2,.reset-design-dialog h2){font-family:var(--dealer-heading-font,var(--font-heading));font-weight:var(--dealer-heading-weight,700)}
+.dealer-cobranded .home-hero h1{font-size:clamp(calc(var(--dealer-heading-size,68px)*.58),5vw,var(--dealer-heading-size,68px))}
+.dealer-cobranded :is(.section-heading h1,.success h1,.visualizer-heading h1){font-size:clamp(calc(var(--dealer-heading-size,54px)*.62),4vw,calc(var(--dealer-heading-size,54px)*.88))}
+.dealer-cobranded :is(.home-hero-copy>p,.section-heading p,.option-copy>span,.quote-fields label,.site-footer,.dealer-website-link){font-size:clamp(12px,var(--dealer-body-size,14px),22px);font-weight:var(--dealer-body-weight,inherit)}
 @media(max-width:900px){
   .dealer-cobranded>header{gap:14px}
   .dealer-brand-mark>img{max-width:220px;max-height:58px}

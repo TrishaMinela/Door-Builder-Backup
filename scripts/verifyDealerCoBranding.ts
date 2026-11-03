@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import dealerContext from '../api/dealer-context'
-import { brandColorContrast, dealerBrandStyle, dealerInitials, dealerLogo, dealerLogoPlacement, isLightBrandColor } from '../src/utils/dealerBranding'
+import { brandColorContrast, dealerBrandStyle, dealerCustomFontCss, dealerInitials, dealerLogo, dealerLogoPlacement, isLightBrandColor } from '../src/utils/dealerBranding'
 import { dealerSlugFromPath, isValidDealerSlug } from '../src/utils/dealerSlug'
 import type { PublicDealerBrand } from '../src/types/dealerBranding'
 
@@ -18,6 +18,10 @@ const dealer = {
   primary_color: '#2456a6',
   secondary_color: '#f0b429',
   website: 'https://dealer.example.com/home',
+  heading_font_family: null, heading_font_weight: null, heading_font_size: null,
+  body_font_family: null, body_font_weight: null, body_font_size: null,
+  custom_heading_font_url: null, custom_heading_font_name: null, custom_heading_font_weight: null,
+  custom_body_font_url: null, custom_body_font_name: null, custom_body_font_weight: null,
 }
 
 type ApiResult = { status: number; headers: Record<string, string>; body: unknown }
@@ -56,6 +60,10 @@ assert.deepEqual(available.body, {
     primaryColor: dealer.primary_color,
     secondaryColor: dealer.secondary_color,
     websiteUrl: 'https://dealer.example.com/home',
+    headingFontFamily: null, headingFontWeight: null, headingFontSize: null,
+    bodyFontFamily: null, bodyFontWeight: null, bodyFontSize: null,
+    customHeadingFontUrl: null, customHeadingFontName: null, customHeadingFontWeight: null,
+    customBodyFontUrl: null, customBodyFontName: null, customBodyFontWeight: null,
   },
 })
 assert.equal(JSON.stringify(available.body).includes(dealer.id), false)
@@ -115,6 +123,12 @@ assert.deepEqual(dealerLogoPlacement({ ...publicBrand, logoUrl: 'https://cdn.exa
 
 const unsafeWebsite = await invoke(dealer.slug, [{ ...dealer, website: 'javascript:alert(1)' }])
 assert.equal((unsafeWebsite.body as { dealer: PublicDealerBrand }).dealer.websiteUrl, null)
+const customBrand={...publicBrand,headingFontFamily:'custom',headingFontWeight:700,headingFontSize:60,bodyFontFamily:'georgia',bodyFontWeight:400,bodyFontSize:16,customHeadingFontUrl:'https://hgi.supabase.co/storage/v1/object/public/dealer-fonts/dealer/heading.woff2',customHeadingFontName:'Dealer Sans',customHeadingFontWeight:700}
+const customStyle=dealerBrandStyle(customBrand)
+assert.equal(customStyle['--dealer-heading-size' as keyof typeof customStyle],'60px')
+assert.match(String(customStyle['--dealer-heading-font' as keyof typeof customStyle]),/DealerHeading-test-dealer/)
+assert.match(dealerCustomFontCss(customBrand),/@font-face.*font-display:swap/)
+assert.match(String(customStyle['--dealer-body-font' as keyof typeof customStyle]),/Georgia/)
 
 const appSource = await readFile(new URL('../src/App.tsx', import.meta.url), 'utf8')
 const footerSource = await readFile(new URL('../src/components/SiteFooter.tsx', import.meta.url), 'utf8')

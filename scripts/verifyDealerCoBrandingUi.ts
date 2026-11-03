@@ -43,6 +43,10 @@ try {
           primaryColor: '#2456a6',
           secondaryColor: '#f0b429',
           websiteUrl: 'https://dealer.example.com/',
+          headingFontFamily: 'georgia', headingFontWeight: 700, headingFontSize: 60,
+          bodyFontFamily: 'arial', bodyFontWeight: 400, bodyFontSize: 16,
+          customHeadingFontUrl: null, customHeadingFontName: null, customHeadingFontWeight: null,
+          customBodyFontUrl: null, customBodyFontName: null, customBodyFontWeight: null,
         },
       },
     }))
@@ -68,6 +72,8 @@ try {
     assert.equal(await page.locator('header').evaluate(element => getComputedStyle(element).color), 'rgb(16, 20, 23)')
     assert.equal(await page.locator('.start-building').evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(36, 86, 166)')
     assert.equal(await page.locator('.site-footer').evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(240, 180, 41)')
+    assert.match(await page.locator('.home-hero h1').evaluate(element => getComputedStyle(element).fontFamily),/Georgia/)
+    assert.match(await page.locator('.home-hero-copy>p').evaluate(element => getComputedStyle(element).fontFamily),/Arial/)
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
     assert.match(await page.title(), /^TEST Dealer - Portal Access QA \| Home Guard Door Builder$/)
     assert.equal(await page.locator('meta[name="robots"]').getAttribute('content'), 'noindex,follow')
@@ -98,6 +104,8 @@ try {
         primaryColor: '#2456a6',
         secondaryColor: '#111827',
         websiteUrl: null,
+        headingFontFamily: null, headingFontWeight: null, headingFontSize: null, bodyFontFamily: null, bodyFontWeight: null, bodyFontSize: null,
+        customHeadingFontUrl: null, customHeadingFontName: null, customHeadingFontWeight: null, customBodyFontUrl: null, customBodyFontName: null, customBodyFontWeight: null,
       },
     },
   }))
@@ -126,6 +134,8 @@ try {
         primaryColor: '#111827',
         secondaryColor: '#111827',
         websiteUrl: 'https://dealer.example.com/',
+        headingFontFamily: null, headingFontWeight: null, headingFontSize: null, bodyFontFamily: null, bodyFontWeight: null, bodyFontSize: null,
+        customHeadingFontUrl: null, customHeadingFontName: null, customHeadingFontWeight: null, customBodyFontUrl: null, customBodyFontName: null, customBodyFontWeight: null,
       },
     },
   }))
