@@ -31,6 +31,47 @@ export function dealerLogo(brand: PublicDealerBrand, onDarkBackground = false) {
     : brand.logoUrl || brand.logoLightUrl
 }
 
+export type DealerLogoPlacement = {
+  placement: 'header' | 'hero'
+  headerIsDark: boolean
+  logoUrl: string | null
+  heroUsesDarkSurface: boolean
+}
+
+function relativeLuminance(value: string) {
+  const channel = (start: number) => {
+    const srgb = Number.parseInt(value.slice(start, start + 2), 16) / 255
+    return srgb <= 0.04045 ? srgb / 12.92 : ((srgb + 0.055) / 1.055) ** 2.4
+  }
+  return 0.2126 * channel(1) + 0.7152 * channel(3) + 0.0722 * channel(5)
+}
+
+export function brandColorContrast(first: string | null, second: string | null) {
+  const firstColor = safeColor(first, '#0d666c')
+  const secondColor = safeColor(second, '#05040b')
+  const lighter = Math.max(relativeLuminance(firstColor), relativeLuminance(secondColor))
+  const darker = Math.min(relativeLuminance(firstColor), relativeLuminance(secondColor))
+  return (lighter + 0.05) / (darker + 0.05)
+}
+
+export function dealerLogoPlacement(brand: PublicDealerBrand): DealerLogoPlacement {
+  const headerIsDark = !isLightBrandColor(safeColor(brand.secondaryColor, '#05040b'))
+  const preferredLogo = headerIsDark ? brand.logoLightUrl : brand.logoUrl
+  const fallbackLogo = headerIsDark ? brand.logoUrl : brand.logoLightUrl
+
+  if (preferredLogo) return { placement: 'header', headerIsDark, logoUrl: preferredLogo, heroUsesDarkSurface: false }
+  if (!fallbackLogo) return { placement: 'header', headerIsDark, logoUrl: null, heroUsesDarkSurface: false }
+
+  // A light/white logo without a normal counterpart is never placed on a light
+  // header. A neutral dark hero card is the deterministic safe surface.
+  if (!headerIsDark) return { placement: 'hero', headerIsDark, logoUrl: fallbackLogo, heroUsesDarkSurface: true }
+
+  const likelyReadable = brandColorContrast(brand.primaryColor, brand.secondaryColor) >= 3
+  return likelyReadable
+    ? { placement: 'header', headerIsDark, logoUrl: fallbackLogo, heroUsesDarkSurface: false }
+    : { placement: 'hero', headerIsDark, logoUrl: fallbackLogo, heroUsesDarkSurface: !brand.logoUrl && Boolean(brand.logoLightUrl) }
+}
+
 export function isLightBrandColor(value: string | null) {
   if (!value || !HEX_COLOR.test(value)) return false
   const channel = (start: number) => {

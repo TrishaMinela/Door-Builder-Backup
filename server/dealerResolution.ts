@@ -12,6 +12,7 @@ type DealerRow = {
   logo_light_url: string | null
   primary_color: string | null
   secondary_color: string | null
+  website: string | null
 }
 
 export class DealerResolutionError extends Error {
@@ -35,7 +36,7 @@ async function resolveDealer(dealerSlug: unknown): Promise<DealerRow | null> {
   if (!isValidDealerSlug(slug)) throw new DealerResolutionError(400, 'This dealer link is unavailable.')
 
   const { supabaseUrl, serviceRoleKey } = supabaseCredentials()
-  const query = new URLSearchParams({ select: 'id,is_active,slug,company_name,logo_url,logo_light_url,primary_color,secondary_color', slug: `eq.${slug}`, limit: '2' })
+  const query = new URLSearchParams({ select: 'id,is_active,slug,company_name,logo_url,logo_light_url,primary_color,secondary_color,website', slug: `eq.${slug}`, limit: '2' })
   const result = await fetch(`${supabaseUrl}/rest/v1/dealers?${query}`, {
     headers: { apikey: serviceRoleKey, Authorization: `Bearer ${serviceRoleKey}` },
   })
@@ -62,5 +63,16 @@ export async function resolveDealerBrand(dealerSlug: unknown): Promise<PublicDea
     logoLightUrl: dealer.logo_light_url,
     primaryColor: dealer.primary_color,
     secondaryColor: dealer.secondary_color,
+    websiteUrl: safePublicWebsite(dealer.website),
+  }
+}
+
+function safePublicWebsite(value: string | null) {
+  if (!value) return null
+  try {
+    const url = new URL(value)
+    return url.protocol === 'https:' || url.protocol === 'http:' ? url.toString() : null
+  } catch {
+    return null
   }
 }

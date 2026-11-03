@@ -42,6 +42,7 @@ try {
           logoLightUrl: null,
           primaryColor: '#2456a6',
           secondaryColor: '#f0b429',
+          websiteUrl: 'https://dealer.example.com/',
         },
       },
     }))
@@ -54,8 +55,11 @@ try {
     assert.match(await page.locator('header .dealer-brand-mark').getAttribute('aria-label') ?? '', /TEST Dealer.*branding/)
     assert.equal(await page.getByText(/Presented by/i).count(), 0)
     assert.equal(await page.getByRole('link', { name: 'Find a Dealer' }).count(), 0)
-    assert.equal(await page.locator('header .hgi-attribution').count(), 1)
+    assert.equal(await page.locator('header .hgi-attribution').count(), 0)
     assert.equal(await page.locator('.site-footer .hgi-attribution').count(), 1)
+    const websiteLink = page.getByRole('link', { name: 'Visit Our Website' })
+    assert.equal(await websiteLink.getAttribute('href'), 'https://dealer.example.com/')
+    assert.equal(await websiteLink.getAttribute('target'), '_blank')
     assert.equal(await page.getByRole('link', { name: 'Email Home Guard Industries' }).count(), 0)
     assert.equal(await page.getByRole('link', { name: 'View Home Guard Industries on Google Maps' }).count(), 0)
     assert.equal(await page.getByRole('link', { name: 'Call Home Guard Industries at 1-800-525-1885' }).count(), 1)
@@ -93,18 +97,47 @@ try {
         logoLightUrl: 'https://cdn.example.invalid/dealer-light.png',
         primaryColor: '#2456a6',
         secondaryColor: '#111827',
+        websiteUrl: null,
       },
     },
   }))
   await darkPage.goto(`http://127.0.0.1:${port}/dark-test-dealer`)
   await darkPage.getByRole('button', { name: 'Start Building Your Door' }).waitFor()
   assert.match(await darkPage.locator('header .dealer-brand-mark img').getAttribute('src') ?? '', /dealer-light\.png/)
-  assert.match(await darkPage.locator('header .hgi-attribution img').getAttribute('src') ?? '', /hgi-logo-white-dealer\.png/)
+  assert.equal(await darkPage.locator('header .hgi-attribution').count(), 0)
+  assert.equal(await darkPage.getByRole('link', { name: 'Visit Our Website' }).count(), 0)
   assert.match(await darkPage.locator('.site-footer .hgi-attribution img').getAttribute('src') ?? '', /hgi-logo-white-dealer\.png/)
   assert.equal(await darkPage.locator('header').evaluate(element => getComputedStyle(element).color), 'rgb(255, 255, 255)')
   assert.equal(await darkPage.locator('.site-footer').evaluate(element => getComputedStyle(element).color), 'rgb(255, 255, 255)')
   await darkPage.screenshot({ path: '/tmp/hgi-dealer-cobranding/dealer-dark-1440.png', fullPage: true })
   await darkPage.close()
+
+  const lowContrastPage = await browser.newPage({ viewport: { width: 820, height: 1180 } })
+  await lowContrastPage.route('https://cdn.example.invalid/**', route => route.fulfill({ status: 200, contentType: 'image/png', body: transparentPng }))
+  await lowContrastPage.route('**/api/dealer-context?slug=low-contrast-dealer', route => route.fulfill({
+    status: 200,
+    json: {
+      available: true,
+      dealer: {
+        slug: 'low-contrast-dealer',
+        companyName: 'Low Contrast Dealer',
+        logoUrl: 'https://cdn.example.invalid/dealer-primary.png',
+        logoLightUrl: null,
+        primaryColor: '#111827',
+        secondaryColor: '#111827',
+        websiteUrl: 'https://dealer.example.com/',
+      },
+    },
+  }))
+  await lowContrastPage.goto(`http://127.0.0.1:${port}/low-contrast-dealer`)
+  await lowContrastPage.getByRole('button', { name: 'Start Building Your Door' }).waitFor()
+  assert.equal(await lowContrastPage.locator('header .dealer-brand-mark').count(), 0)
+  assert.equal(await lowContrastPage.locator('.dealer-hero-logo .dealer-brand-mark').count(), 1)
+  assert.match(await lowContrastPage.locator('.dealer-hero-logo img').getAttribute('src') ?? '', /dealer-primary\.png/)
+  assert.equal(await lowContrastPage.locator('.dealer-brand-mark').count(), 1)
+  assert.equal(await lowContrastPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
+  await lowContrastPage.screenshot({ path: '/tmp/hgi-dealer-cobranding/dealer-low-contrast-820.png', fullPage: true })
+  await lowContrastPage.close()
 
   const invalidPage = await browser.newPage({ viewport: { width: 390, height: 844 } })
   await invalidPage.route('**/api/dealer-context?slug=unknown-dealer', route => route.fulfill({ status: 404, json: { error: 'This dealer link is unavailable.' } }))

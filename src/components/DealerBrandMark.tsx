@@ -5,11 +5,12 @@ import { dealerInitials, dealerLogo } from '../utils/dealerBranding'
 type Props = {
   brand: PublicDealerBrand
   onDarkBackground?: boolean
+  logoUrl?: string | null
 }
 
-export function DealerBrandMark({ brand, onDarkBackground = false }: Props) {
+export function DealerBrandMark({ brand, onDarkBackground = false, logoUrl }: Props) {
   const [failedLogo, setFailedLogo] = useState<string | null>(null)
-  const logo = dealerLogo(brand, onDarkBackground)
+  const logo = logoUrl === undefined ? dealerLogo(brand, onDarkBackground) : logoUrl
   const showFallback = !logo || failedLogo === logo
 
   return <div className="dealer-brand-mark" aria-label={`${brand.companyName} dealer branding`}>

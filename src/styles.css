@@ -1958,16 +1958,26 @@ body{overflow:hidden}
 .brand-home{display:block;flex:none;border:0;background:transparent;padding:0;color:inherit;line-height:0;cursor:pointer}
 .brand-home:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:2px}
 
-/* Public dealer links make the dealer the primary brand while retaining a
-   deliberately secondary HGI product attribution. */
-.dealer-cobranded>header{background:var(--dealer-secondary);border-bottom-color:var(--dealer-primary);color:var(--dealer-secondary-foreground)}
-.dealer-cobranded .brand{gap:16px;color:inherit;max-width:calc(100% - 90px)}
+/* Dealer links keep the dealer as the sole header brand. HGI attribution lives
+   in the supporting footer, where it cannot compete with the dealer identity. */
+.dealer-cobranded>header{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:24px;background:var(--dealer-secondary);border-bottom-color:var(--dealer-primary);color:var(--dealer-secondary-foreground)}
+.dealer-header-spacer{min-width:0}
+.dealer-header-brand{display:flex;min-width:0;align-items:center;justify-content:center}
+.dealer-header-actions{display:flex;min-width:0;align-items:center;justify-content:flex-end}
 .dealer-brand-home{min-width:0;flex:none;border:0;background:transparent;padding:0;color:inherit;line-height:0}
 .dealer-brand-home:focus-visible{border-radius:4px;outline:3px solid var(--dealer-primary);outline-offset:4px}
 .dealer-brand-mark{min-width:0;display:flex;align-items:center;gap:10px;color:inherit;line-height:1.15}
-.dealer-brand-mark>img{display:block;width:auto!important;height:auto!important;max-width:min(250px,29vw);max-height:58px;object-fit:contain;filter:none!important}
+.dealer-brand-mark>img{display:block;width:auto!important;height:auto!important;max-width:min(330px,34vw);max-height:72px;object-fit:contain;filter:none!important}
 .dealer-brand-fallback{width:46px;height:46px;flex:none;border:1px solid currentColor;border-radius:50%;display:grid;place-items:center;background:#ffffff18;font-size:13px;font-weight:850;letter-spacing:.05em}
 .dealer-brand-fallback-name{max-width:min(280px,30vw);overflow:hidden;font-size:13px;line-height:1.25;text-align:left;text-overflow:ellipsis;white-space:nowrap}
+.dealer-website-link{display:inline-flex;min-height:44px;align-items:center;justify-content:center;gap:8px;border:1px solid currentColor;border-radius:6px;padding:10px 16px;background:var(--dealer-secondary-foreground);color:var(--dealer-secondary);box-shadow:0 6px 18px #05040b24;font-size:10px;font-weight:800;letter-spacing:.08em;line-height:1.2;text-align:center;text-transform:uppercase;white-space:nowrap;transition:background-color .2s,color .2s,box-shadow .2s}
+.dealer-website-link:hover{background:color-mix(in srgb,var(--dealer-secondary-foreground) 88%,var(--dealer-secondary));box-shadow:0 8px 22px #05040b32}
+.dealer-website-link:focus-visible{outline:3px solid var(--dealer-primary);outline-offset:3px}
+.dealer-hero-logo{display:flex;width:min(420px,100%);min-height:112px;align-items:center;justify-content:center;margin:0 0 28px;border:1px solid #dce3e5;border-radius:10px;padding:18px 26px;background:#fff;color:#101417;box-shadow:0 10px 28px #05040b12}
+.dealer-hero-logo-dark{border-color:#2f3945;background:#111827;color:#fff}
+.dealer-hero-logo .dealer-brand-mark{justify-content:center}
+.dealer-hero-logo .dealer-brand-mark>img{max-width:min(360px,72vw);max-height:92px}
+.dealer-hero-logo .dealer-brand-fallback-name{max-width:min(320px,68vw);font-size:16px;white-space:normal;text-align:center}
 .hgi-attribution{min-width:0;display:flex;align-items:center;gap:10px;padding-left:16px;border-left:1px solid currentColor;color:inherit;line-height:1.25;opacity:.86}
 .hgi-attribution>span{max-width:142px;font-size:8px;font-weight:650;letter-spacing:.07em;text-transform:uppercase}
 .hgi-attribution>a{display:block;flex:none;color:inherit;line-height:0}
@@ -1981,18 +1991,25 @@ body{overflow:hidden}
 .dealer-cobranded :is(.visualizer-progress li.active,.hardware-finish-options button.selected .hardware-finish-color){border-color:var(--dealer-primary);outline-color:var(--dealer-primary)}
 .dealer-cobranded :is(button,a,input,textarea):focus-visible{outline-color:var(--dealer-primary)}
 @media(max-width:900px){
-  .dealer-brand-mark>img{max-width:180px;max-height:48px}
+  .dealer-cobranded>header{gap:14px}
+  .dealer-brand-mark>img{max-width:220px;max-height:58px}
   .dealer-brand-fallback-name{max-width:180px}
   .hgi-attribution>span{display:none}
   .hgi-attribution{padding-left:12px}
   .dealer-brand-fallback{width:36px;height:36px;font-size:11px}
 }
 @media(max-width:560px){
-  .dealer-cobranded .brand{gap:9px;max-width:calc(100% - 48px)}
+  .dealer-cobranded>header{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"brand action";gap:10px;padding-left:14px;padding-right:14px}
+  .dealer-header-spacer{display:none}
+  .dealer-header-brand{grid-area:brand;justify-content:flex-start}
+  .dealer-header-actions{grid-area:action}
   .dealer-brand-mark{gap:8px}
-  .dealer-brand-mark>img{max-width:120px;max-height:38px}
-  .dealer-brand-fallback-name{max-width:105px;font-size:10px;white-space:normal}
+  .dealer-brand-mark>img{max-width:min(155px,42vw);max-height:46px}
+  .dealer-brand-fallback-name{max-width:135px;font-size:10px;white-space:normal}
   .dealer-brand-fallback{width:32px;height:32px;font-size:10px}
+  .dealer-website-link{min-height:40px;max-width:142px;padding:8px 10px;font-size:8px;letter-spacing:.06em;white-space:normal}
+  .dealer-hero-logo{width:100%;min-height:94px;margin-bottom:22px;padding:14px 18px}
+  .dealer-hero-logo .dealer-brand-mark>img{max-width:min(270px,68vw);max-height:76px}
   .hgi-attribution{padding-left:8px}
   .dealer-cobranded .hgi-attribution>a>img{width:70px!important;height:25px!important}
   .hgi-attribution-white-logo{width:76px;height:25px}

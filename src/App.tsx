@@ -8,12 +8,11 @@ import { OptionCard } from './components/OptionCard'
 import { QuoteForm } from './components/QuoteForm'
 import { SubmissionConfirmation } from './components/SubmissionConfirmation'
 import { SiteFooter } from './components/SiteFooter'
-import { HgiAttribution } from './components/HgiAttribution'
 import { DealerMode, useDealerSession } from './components/DealerMode'
 import { DealerContextGate } from './components/DealerContextGate'
 import { DealerBrandMark } from './components/DealerBrandMark'
 import type { PublicDealerBrand } from './types/dealerBranding'
-import { dealerBrandStyle, isLightBrandColor } from './utils/dealerBranding'
+import { dealerBrandStyle, dealerLogoPlacement, isLightBrandColor } from './utils/dealerBranding'
 import { sortByDisplayLabel } from './utils/sortByDisplayLabel'
 import { validOptionId } from './utils/optionSelection'
 import { builderGroupForPage, builderGroupStart, type BuilderGroup } from './utils/builderNavigation'
@@ -2050,6 +2049,8 @@ function DoorBuilderApp({ dealerSlug, dealerBrand }: { dealerSlug: string | null
     />
   }
 
+  const dealerLogoLayout = dealerBrand ? dealerLogoPlacement(dealerBrand) : null
+
   return (
     <div
       className={`app builder-typography ${screen === 'home' ? 'home-app' : screen === 'visualizer' ? 'visualizer-app' : screen === 'customer-form' ? 'customer-form-app' : ''} ${screen === 'builder' && isVisualizerEditing ? 'visualizer-editing' : ''} ${screen === 'builder' && currentPage === 'review' && submitted ? 'review-confirmation-centered' : ''} ${dealerBrand ? 'dealer-cobranded' : ''} ${dealerBrand && isLightBrandColor(dealerBrand.secondaryColor) ? 'dealer-secondary-light' : ''}`}
@@ -2057,26 +2058,29 @@ function DoorBuilderApp({ dealerSlug, dealerBrand }: { dealerSlug: string | null
     >
       <div className="dealer-mode-banner-slot" ref={setDealerBannerTarget} />
       <header>
-        <div className="brand">
-          {dealerBrand
-            ? <>
-              <button className="dealer-brand-home" type="button" aria-label={`Go to ${dealerBrand.companyName} Door Builder home`} onClick={() => showScreen('home')}>
-                <DealerBrandMark brand={dealerBrand} onDarkBackground={!isLightBrandColor(dealerBrand.secondaryColor)} />
-              </button>
-              <HgiAttribution onDarkBackground={!isLightBrandColor(dealerBrand.secondaryColor)} />
-            </>
-            : <>
+        {dealerBrand ? <>
+          <div className="dealer-header-spacer" aria-hidden="true" />
+          <div className="dealer-header-brand">
+            {dealerLogoLayout?.placement === 'header' && <button className="dealer-brand-home" type="button" aria-label={`Go to ${dealerBrand.companyName} Door Builder home`} onClick={() => showScreen('home')}>
+              <DealerBrandMark brand={dealerBrand} onDarkBackground={dealerLogoLayout.headerIsDark} logoUrl={dealerLogoLayout.logoUrl} />
+            </button>}
+          </div>
+          <div className="dealer-header-actions">
+            {dealerBrand.websiteUrl && <a className="dealer-website-link" href={dealerBrand.websiteUrl} target="_blank" rel="noopener noreferrer">Visit Our Website <ExternalLink size={15} /></a>}
+          </div>
+        </> : <>
+          <div className="brand">
               <button className="brand-home" type="button" aria-label="Go to home page" onClick={() => showScreen('home')}>
                 <img src="/assets/branding/hgi-logo-black.webp" alt="Home Guard Industries Doors and Windows" />
               </button>
               {screen !== 'home' && <span className="app-name"><strong>Home Guard Door Builder</strong></span>}
-            </>}
-        </div>
-        <div className="header-actions">
+          </div>
+          <div className="header-actions">
           {screen !== 'home' && <>
           <button className="home-return" aria-label="Home" onClick={() => showScreen('home')}><HomeIcon size={17} /><span>Home</span></button></>}
-          {!dealerBrand && <div className="header-dealer-cta"><span>Want this door? <strong>Connect with a Dealer</strong></span><a href="https://homeguardindustries.com/find-a-home-guard-dealer-hub/" target="_blank" rel="noreferrer">Find a Dealer <ExternalLink size={14} /></a></div>}
+          <div className="header-dealer-cta"><span>Want this door? <strong>Connect with a Dealer</strong></span><a href="https://homeguardindustries.com/find-a-home-guard-dealer-hub/" target="_blank" rel="noreferrer">Find a Dealer <ExternalLink size={14} /></a></div>
         </div>
+        </>}
       </header>
 
       <dialog ref={resetDialogRef} className="reset-design-dialog" aria-labelledby="reset-design-title" aria-describedby="reset-design-message"
@@ -2104,6 +2108,9 @@ function DoorBuilderApp({ dealerSlug, dealerBrand }: { dealerSlug: string | null
       {screen === 'home' ? <main className="home-page">
         <section className="home-hero">
           <div className="home-hero-copy">
+            {dealerBrand && dealerLogoLayout?.placement === 'hero' && <div className={`dealer-hero-logo ${dealerLogoLayout.heroUsesDarkSurface ? 'dealer-hero-logo-dark' : ''}`}>
+              <DealerBrandMark brand={dealerBrand} onDarkBackground={dealerLogoLayout.heroUsesDarkSurface} logoUrl={dealerLogoLayout.logoUrl} />
+            </div>}
             <h1>Build a Door Made for <em>Your Home.</em></h1>
             <p>Choose your door style, finish, glass, and hardware, then bring your vision to life by seeing how your custom door looks on your own home.</p>
             <button className="start-building" onClick={() => showScreen('builder')}>Start Building Your Door</button>

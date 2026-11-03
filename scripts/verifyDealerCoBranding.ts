@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import dealerContext from '../api/dealer-context'
-import { dealerBrandStyle, dealerInitials, dealerLogo, isLightBrandColor } from '../src/utils/dealerBranding'
+import { brandColorContrast, dealerBrandStyle, dealerInitials, dealerLogo, dealerLogoPlacement, isLightBrandColor } from '../src/utils/dealerBranding'
 import { dealerSlugFromPath, isValidDealerSlug } from '../src/utils/dealerSlug'
 import type { PublicDealerBrand } from '../src/types/dealerBranding'
 
@@ -17,6 +17,7 @@ const dealer = {
   logo_light_url: 'https://cdn.example.invalid/dealer-light.png',
   primary_color: '#2456a6',
   secondary_color: '#f0b429',
+  website: 'https://dealer.example.com/home',
 }
 
 type ApiResult = { status: number; headers: Record<string, string>; body: unknown }
@@ -54,6 +55,7 @@ assert.deepEqual(available.body, {
     logoLightUrl: dealer.logo_light_url,
     primaryColor: dealer.primary_color,
     secondaryColor: dealer.secondary_color,
+    websiteUrl: 'https://dealer.example.com/home',
   },
 })
 assert.equal(JSON.stringify(available.body).includes(dealer.id), false)
@@ -97,12 +99,29 @@ assert.deepEqual(dealerBrandStyle({ ...publicBrand, primaryColor: 'url(javascrip
 assert.equal(dealerBrandStyle({ ...publicBrand, primaryColor: '#f7e56b' })['--dealer-primary-foreground' as keyof ReturnType<typeof dealerBrandStyle>], '#101417')
 assert.equal(isLightBrandColor('#111827'), false)
 assert.equal(isLightBrandColor('#f0b429'), true)
+assert.ok(brandColorContrast('#2456a6', '#f0b429') >= 3)
+assert.deepEqual(dealerLogoPlacement(publicBrand), {
+  placement: 'hero',
+  headerIsDark: false,
+  logoUrl: dealer.logo_light_url,
+  heroUsesDarkSurface: true,
+})
+assert.deepEqual(dealerLogoPlacement({ ...publicBrand, logoUrl: 'https://cdn.example.invalid/normal.png', logoLightUrl: null, primaryColor: '#111827', secondaryColor: '#111827' }), {
+  placement: 'hero',
+  headerIsDark: true,
+  logoUrl: 'https://cdn.example.invalid/normal.png',
+  heroUsesDarkSurface: false,
+})
+
+const unsafeWebsite = await invoke(dealer.slug, [{ ...dealer, website: 'javascript:alert(1)' }])
+assert.equal((unsafeWebsite.body as { dealer: PublicDealerBrand }).dealer.websiteUrl, null)
 
 const appSource = await readFile(new URL('../src/App.tsx', import.meta.url), 'utf8')
 const footerSource = await readFile(new URL('../src/components/SiteFooter.tsx', import.meta.url), 'utf8')
 const attributionSource = await readFile(new URL('../src/components/HgiAttribution.tsx', import.meta.url), 'utf8')
 assert.doesNotMatch(appSource, /Presented by/)
-assert.match(appSource, /!dealerBrand && <div className="header-dealer-cta"/)
+assert.match(appSource, /className="dealer-website-link"/)
+assert.doesNotMatch(appSource, /header>[\s\S]*?<HgiAttribution/)
 assert.match(footerSource, /!dealerBrand && <a href="mailto:/)
 assert.match(footerSource, /!dealerBrand && <a href="https:\/\/www\.google\.com\/maps/)
 assert.match(attributionSource, /Door Builder & Visualizer provided by/)
