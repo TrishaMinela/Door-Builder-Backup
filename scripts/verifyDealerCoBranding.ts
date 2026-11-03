@@ -138,8 +138,8 @@ assert.match(appSource, /className="dealer-website-link"/)
 assert.doesNotMatch(appSource, /header>[\s\S]*?<HgiAttribution/)
 assert.match(footerSource, /!dealerBrand && <a href="mailto:/)
 assert.match(footerSource, /!dealerBrand && <a href="https:\/\/www\.google\.com\/maps/)
-assert.match(attributionSource, /Door Builder & Visualizer provided by/)
-assert.match(attributionSource, /hgi-logo-white-dealer\.png/)
+assert.match(attributionSource, /Door Builder &amp; Visualizer<br \/>provided by/)
+assert.match(attributionSource, /hgi-logo-white\.png/)
 assert.match(attributionSource, /hgi-logo-black\.webp/)
 
 const vercelConfiguration = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8')) as { rewrites: Array<{ source: string; destination: string }> }

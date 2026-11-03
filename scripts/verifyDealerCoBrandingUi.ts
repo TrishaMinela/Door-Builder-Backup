@@ -61,6 +61,7 @@ try {
     assert.equal(await page.getByRole('link', { name: 'Find a Dealer' }).count(), 0)
     assert.equal(await page.locator('header .hgi-attribution').count(), 0)
     assert.equal(await page.locator('.site-footer .hgi-attribution').count(), 1)
+    assert.match(await page.locator('.site-footer .hgi-attribution>span').innerText(), /Door Builder & Visualizer\s+provided by/i)
     const websiteLink = page.getByRole('link', { name: 'Visit Our Website' })
     assert.equal(await websiteLink.getAttribute('href'), 'https://dealer.example.com/')
     assert.equal(await websiteLink.getAttribute('target'), '_blank')
@@ -114,7 +115,18 @@ try {
   assert.match(await darkPage.locator('header .dealer-brand-mark img').getAttribute('src') ?? '', /dealer-light\.png/)
   assert.equal(await darkPage.locator('header .hgi-attribution').count(), 0)
   assert.equal(await darkPage.getByRole('link', { name: 'Visit Our Website' }).count(), 0)
-  assert.match(await darkPage.locator('.site-footer .hgi-attribution img').getAttribute('src') ?? '', /hgi-logo-white-dealer\.png/)
+  const darkFooterLogo = darkPage.locator('.site-footer .hgi-attribution img')
+  assert.match(await darkFooterLogo.getAttribute('src') ?? '', /hgi-logo-white\.png/)
+  const darkFooterLogoStyle = await darkFooterLogo.evaluate(element => {
+    const style = getComputedStyle(element)
+    return { objectFit: style.objectFit, overflow: style.overflow, width: element.getBoundingClientRect().width }
+  })
+  assert.equal(darkFooterLogoStyle.objectFit, 'contain')
+  assert.equal(darkFooterLogoStyle.overflow, 'visible')
+  assert.ok(darkFooterLogoStyle.width >= 180)
+  const phoneBox = await darkPage.getByRole('link', { name: 'Call Home Guard Industries at 1-800-525-1885' }).boundingBox()
+  const websiteBox = await darkPage.getByRole('link', { name: 'Visit the Home Guard Industries website' }).boundingBox()
+  assert.ok(phoneBox && websiteBox && websiteBox.y > phoneBox.y + phoneBox.height)
   assert.equal(await darkPage.locator('header').evaluate(element => getComputedStyle(element).color), 'rgb(255, 255, 255)')
   assert.equal(await darkPage.locator('.site-footer').evaluate(element => getComputedStyle(element).color), 'rgb(255, 255, 255)')
   await darkPage.screenshot({ path: '/tmp/hgi-dealer-cobranding/dealer-dark-1440.png', fullPage: true })
@@ -171,7 +183,7 @@ try {
   )
   assert.match(
     await lowContrastPage.locator('.site-footer .hgi-attribution').innerText(),
-    /door builder & visualizer provided by/i,
+    /door builder & visualizer\s+provided by/i,
   )
   assert.equal(await lowContrastPage.locator('.site-footer').getByText('getintouch@homeguardindustries.com').count(), 0)
   assert.equal(await lowContrastPage.locator('.site-footer').getByText('13101 Main Street').count(), 0)
