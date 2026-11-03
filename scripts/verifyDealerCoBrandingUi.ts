@@ -160,6 +160,15 @@ try {
   assert.equal(heroAlignment.alignItems, 'center')
   assert.equal(heroAlignment.textAlign, 'center')
   assert.ok(Math.abs(heroAlignment.center - 410) < 2)
+  const dealerHeaderBox = await lowContrastPage.locator('header').boundingBox()
+  const dealerWebsiteBox = await lowContrastPage.getByRole('link', { name: 'Visit Our Website' }).boundingBox()
+  const dealerHeroBox = await lowContrastPage.locator('.home-hero-visual').boundingBox()
+  assert.equal(Math.round(dealerHeaderBox?.height ?? 0), 64)
+  assert.ok(dealerWebsiteBox && dealerHeroBox && Math.abs(dealerWebsiteBox.x + dealerWebsiteBox.width - (dealerHeroBox.x + dealerHeroBox.width)) < 2)
+  assert.equal(
+    await lowContrastPage.locator('.dealer-hero-logo img').evaluate(element => getComputedStyle(element).maxHeight),
+    '165px',
+  )
   assert.match(
     await lowContrastPage.locator('.site-footer .hgi-attribution').innerText(),
     /door builder & visualizer provided by/i,

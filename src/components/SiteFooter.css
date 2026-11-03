@@ -17,10 +17,11 @@ html:has(.shared-site-footer),body:has(.shared-site-footer){height:auto;min-heig
 .dealer-cobranded>.shared-site-footer.site-footer,
 .dealer-cobranded>.shared-site-footer :is(a,.site-footer-feedback small){color:var(--dealer-secondary-foreground)}
 .dealer-cobranded>.shared-site-footer .hgi-attribution{padding-left:0;border-left:0;opacity:1}
-.dealer-cobranded>.shared-site-footer .hgi-attribution>span{display:block;max-width:150px;font-size:10px;line-height:1.4}
-.dealer-cobranded>.shared-site-footer .hgi-attribution>a>img{width:120px!important;height:38px!important}
-.dealer-cobranded>.shared-site-footer .hgi-attribution-white-logo{width:112px;height:32px}
-.dealer-cobranded>.shared-site-footer .hgi-attribution-white-logo>img{top:-48px;width:112px!important;height:112px!important}
+.dealer-cobranded>.shared-site-footer .hgi-attribution{gap:16px}
+.dealer-cobranded>.shared-site-footer .hgi-attribution>span{display:block;max-width:170px;font-size:11px;line-height:1.45}
+.dealer-cobranded>.shared-site-footer .hgi-attribution>a>img{width:150px!important;height:48px!important}
+.dealer-cobranded>.shared-site-footer .hgi-attribution-white-logo{width:150px;height:48px}
+.dealer-cobranded>.shared-site-footer .hgi-attribution-white-logo>img{top:-64px;width:150px!important;height:150px!important}
 .shared-site-footer .site-footer-contact{display:grid;grid-template-columns:auto auto;align-items:start;justify-content:center;gap:18px 28px;width:auto;min-width:0;flex-direction:row}
 .shared-site-footer :is(.site-footer-direct,.site-footer-location){display:grid;gap:12px;max-width:100%;align-items:start;justify-content:start;flex-direction:row}
 .shared-site-footer .site-footer-contact a{display:flex!important;align-items:center;justify-content:flex-start;gap:10px;width:auto;height:auto;min-height:32px;border:0;border-radius:0;font-size:13px;white-space:normal}
@@ -46,9 +47,11 @@ html:has(.shared-site-footer),body:has(.shared-site-footer){height:auto;min-heig
   .shared-site-footer .site-footer-feedback{grid-column:1/-1;justify-self:end}
 }
 @media(min-width:1101px){
-  .dealer-cobranded>.shared-site-footer.site-footer{grid-template-columns:minmax(260px,1fr) auto minmax(260px,1fr);gap:32px}
+  .dealer-cobranded>.shared-site-footer.site-footer{grid-template-columns:minmax(290px,1fr) auto minmax(290px,1fr);gap:42px;min-height:190px!important;padding:42px max(24px,calc((100vw - 1180px)/2))!important}
   .dealer-cobranded>.shared-site-footer .site-footer-branding{justify-self:start}
-  .dealer-cobranded>.shared-site-footer .site-footer-contact{grid-template-columns:auto auto;justify-self:center}
+  .dealer-cobranded>.shared-site-footer .site-footer-contact{grid-template-columns:auto auto;justify-self:center;gap:16px 36px}
+  .dealer-cobranded>.shared-site-footer .site-footer-contact a{gap:12px;font-size:15px}
+  .dealer-cobranded>.shared-site-footer .site-footer-contact a svg{width:19px;height:19px}
   .dealer-cobranded>.shared-site-footer .site-footer-feedback{justify-self:end}
 }
 @media(max-width:900px){
@@ -60,4 +63,9 @@ html:has(.shared-site-footer),body:has(.shared-site-footer){height:auto;min-heig
   .shared-site-footer.site-footer{grid-template-columns:1fr;gap:24px;padding:32px 24px calc(32px + env(safe-area-inset-bottom))!important}
   .shared-site-footer .site-footer-contact{grid-template-columns:1fr;justify-content:start;gap:12px}
   .shared-site-footer .site-footer-feedback{grid-column:auto;justify-self:start}
+  .dealer-cobranded>.shared-site-footer.site-footer{gap:28px;padding-top:38px!important;padding-bottom:calc(38px + env(safe-area-inset-bottom))!important}
+  .dealer-cobranded>.shared-site-footer .hgi-attribution>span{font-size:10px}
+  .dealer-cobranded>.shared-site-footer .hgi-attribution>a>img{width:132px!important;height:42px!important}
+  .dealer-cobranded>.shared-site-footer .hgi-attribution-white-logo{width:132px;height:42px}
+  .dealer-cobranded>.shared-site-footer .hgi-attribution-white-logo>img{top:-57px;width:132px!important;height:132px!important}
 }

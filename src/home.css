@@ -29,6 +29,45 @@ html:has(.home-app),body:has(.home-app){height:auto;min-height:100%;overflow-x:h
 .home-app .hero-composite-stage>.home-entryway-overlay{position:absolute;inset:0;width:100%;height:100%;margin:0;transform:none}
 .home-app .home-preview-caption{display:flex;justify-content:space-between;align-items:baseline;gap:20px;max-width:1240px;margin:0 auto;padding:24px 0 52px}
 .home-app .home-preview-caption p{margin:0;font-size:16px;line-height:1.5}.home-app .home-preview-caption p:first-child{font-weight:600}
+
+/* Dealer landing pages use one tighter 1180px presentation grid. These
+   overrides stay dealer-scoped so the root Home Guard landing page is unchanged. */
+.home-app.dealer-cobranded>header{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  min-height:64px;
+  padding:8px max(24px,calc((100vw - 1180px)/2));
+}
+.home-app.dealer-logo-in-hero>header .dealer-header-actions{grid-column:2}
+.home-app.dealer-cobranded .home-page{padding:0 24px}
+.home-app.dealer-cobranded .home-hero{max-width:1180px}
+.home-app.dealer-logo-in-hero .home-hero-copy{
+  width:100%;
+  max-width:900px;
+  padding:30px 0 28px;
+}
+.home-app.dealer-logo-in-hero .dealer-hero-logo{
+  width:min(640px,100%);
+  margin:0 auto 14px;
+}
+.home-app.dealer-logo-in-hero .dealer-hero-logo-dark{padding:14px 22px}
+.home-app.dealer-logo-in-hero .dealer-hero-logo .dealer-brand-mark>img{
+  max-width:min(560px,82vw);
+  max-height:165px;
+  object-fit:contain;
+}
+.builder-typography.home-app.dealer-logo-in-hero .home-hero h1{margin:0 0 14px}
+.home-app.dealer-logo-in-hero .home-hero-copy>p{margin:0 0 20px}
+.home-app.dealer-logo-in-hero .home-hero-visual{
+  width:100%;
+  max-width:1180px;
+  margin:0 auto;
+  padding:0;
+}
+.home-app.dealer-cobranded .home-preview-caption{
+  max-width:1180px;
+  padding:18px 0 42px;
+}
 @media(max-width:700px){
   .home-app>header{min-height:80px;padding:12px 20px;gap:12px}
   .home-app .brand-home img{width:clamp(140px,40vw,170px)}.home-app .header-dealer-cta a{font-size:13px;padding:11px 16px;min-height:44px}
@@ -37,4 +76,12 @@ html:has(.home-app),body:has(.home-app){height:auto;min-height:100%;overflow-x:h
   .home-app .home-hero h1{margin-bottom:20px}
   .home-app .hero-composite{aspect-ratio:4/3}
   .home-app .home-preview-caption{flex-direction:column;gap:8px;padding:20px 0 36px}
+  .home-app.dealer-cobranded>header{min-height:60px;padding:8px 20px}
+  .home-app.dealer-cobranded .home-page{padding:0 20px}
+  .home-app.dealer-logo-in-hero .home-hero-copy{padding:26px 0 24px}
+  .home-app.dealer-logo-in-hero .dealer-hero-logo{margin-bottom:12px}
+  .home-app.dealer-logo-in-hero .dealer-hero-logo .dealer-brand-mark>img{max-width:min(360px,88vw);max-height:126px}
+  .builder-typography.home-app.dealer-logo-in-hero .home-hero h1{margin-bottom:12px}
+  .home-app.dealer-logo-in-hero .home-hero-copy>p{margin-bottom:18px}
+  .home-app.dealer-cobranded .home-preview-caption{padding:18px 0 34px}
 }
