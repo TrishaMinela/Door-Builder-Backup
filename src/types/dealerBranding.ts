@@ -3,6 +3,7 @@ export type PublicDealerBrand = {
   companyName: string
   logoUrl: string | null
   logoLightUrl: string | null
+  logoPlacement: 'header' | 'hero'
   primaryColor: string | null
   secondaryColor: string | null
   websiteUrl: string | null

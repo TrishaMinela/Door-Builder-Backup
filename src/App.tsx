@@ -2052,8 +2052,8 @@ function DoorBuilderApp({ dealerSlug, dealerBrand }: { dealerSlug: string | null
   const dealerLogoLayout = dealerBrand ? dealerLogoPlacement(dealerBrand) : null
   const dealerHeaderLogo = dealerLogoLayout
     ? screen === 'home'
-      ? dealerLogoLayout.logoUrl
-      : dealerLogoLayout.placement === 'header' ? dealerLogoLayout.logoUrl : null
+      ? dealerLogoLayout.placement === 'header' ? dealerLogoLayout.logoUrl : null
+      : dealerLogoLayout.headerIsDark ? dealerBrand?.logoLightUrl || dealerBrand?.logoUrl || null : dealerBrand?.logoUrl || dealerBrand?.logoLightUrl || null
     : null
 
   return (

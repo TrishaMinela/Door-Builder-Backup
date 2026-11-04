@@ -40,6 +40,7 @@ try {
           companyName: 'TEST Dealer - Portal Access QA',
           logoUrl: null,
           logoLightUrl: null,
+          logoPlacement: 'header',
           primaryColor: '#2456a6',
           secondaryColor: '#f0b429',
           websiteUrl: 'https://dealer.example.com/',
@@ -54,6 +55,7 @@ try {
     await page.getByRole('button', { name: 'Start Building Your Door' }).waitFor()
     assert.equal(await page.locator('.dealer-cobranded').count(), 1)
     assert.equal(await page.locator('header .dealer-brand-mark').count(), 1)
+    assert.equal(await page.locator('.dealer-hero-logo').count(), 0)
     assert.equal(await page.locator('.site-footer .dealer-brand-mark').count(), 0)
     assert.equal(await page.locator('header .dealer-brand-fallback').innerText(), 'TD')
     assert.match(await page.locator('header .dealer-brand-mark').getAttribute('aria-label') ?? '', /TEST Dealer.*branding/)
@@ -65,6 +67,9 @@ try {
     const websiteLink = page.getByRole('link', { name: 'Visit Our Website' })
     assert.equal(await websiteLink.getAttribute('href'), 'https://dealer.example.com/')
     assert.equal(await websiteLink.getAttribute('target'), '_blank')
+    const homeLogoBox = await page.locator('header .dealer-brand-mark').boundingBox()
+    const homeWebsiteBox = await websiteLink.boundingBox()
+    assert.ok(homeLogoBox && homeWebsiteBox && homeLogoBox.x < homeWebsiteBox.x, `Header placement stays left/right aligned at ${width}px`)
     assert.equal(await page.getByRole('link', { name: 'Email Home Guard Industries' }).count(), 0)
     assert.equal(await page.getByRole('link', { name: 'View Home Guard Industries on Google Maps' }).count(), 0)
     assert.equal(await page.getByRole('link', { name: 'Call Home Guard Industries at 1-800-525-1885' }).count(), 1)
@@ -107,6 +112,7 @@ try {
         companyName: 'Dark Test Dealer',
         logoUrl: 'https://cdn.example.invalid/dealer-primary.png',
         logoLightUrl: 'https://cdn.example.invalid/dealer-light.png',
+        logoPlacement: 'header',
         primaryColor: '#2456a6',
         secondaryColor: '#111827',
         websiteUrl: null,
@@ -170,6 +176,7 @@ try {
         companyName: 'Low Contrast Dealer',
         logoUrl: 'https://cdn.example.invalid/dealer-primary.png',
         logoLightUrl: null,
+        logoPlacement: 'hero',
         primaryColor: '#111827',
         secondaryColor: '#111827',
         websiteUrl: 'https://dealer.example.com/',
@@ -217,8 +224,7 @@ try {
   assert.equal(await lowContrastPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
   await lowContrastPage.getByRole('button', { name: 'Start Building Your Door' }).click()
   await lowContrastPage.locator('.builder-panel').waitFor()
-  assert.equal(await lowContrastPage.locator('header .dealer-brand-mark img').count(), 0, 'Low-contrast primary logo is not forced onto the interior header')
-  assert.equal(await lowContrastPage.locator('header .dealer-brand-fallback-name').innerText(), 'Low Contrast Dealer')
+  assert.match(await lowContrastPage.locator('header .dealer-brand-mark img').getAttribute('src') ?? '', /dealer-primary\.png/, 'Interior pages retain the dealer identity')
   await lowContrastPage.screenshot({ path: '/tmp/hgi-dealer-cobranding/dealer-low-contrast-820.png', fullPage: true })
   await lowContrastPage.close()
 

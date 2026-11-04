@@ -38,6 +38,7 @@ html:has(.home-app),body:has(.home-app){height:auto;min-height:100%;overflow-x:h
   min-height:64px;
   padding:8px max(24px,calc((100vw - 1180px)/2));
 }
+.home-app.dealer-cobranded>header .dealer-header-brand{justify-content:flex-start}
 .home-app.dealer-logo-in-hero>header .dealer-header-actions{grid-column:2}
 .home-app.dealer-cobranded .home-page{padding:0 24px}
 .home-app.dealer-cobranded .home-hero{max-width:1180px}

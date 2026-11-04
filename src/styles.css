@@ -1960,9 +1960,9 @@ body{overflow:hidden}
 
 /* Dealer links keep the dealer as the sole header brand. HGI attribution lives
    in the supporting footer, where it cannot compete with the dealer identity. */
-.dealer-cobranded>header{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:24px;background:var(--dealer-secondary);border-bottom-color:var(--dealer-primary);color:var(--dealer-secondary-foreground)}
-.dealer-header-spacer{min-width:0}
-.dealer-header-brand{display:flex;min-width:0;align-items:center;justify-content:center}
+.dealer-cobranded>header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:24px;background:var(--dealer-secondary);border-bottom-color:var(--dealer-primary);color:var(--dealer-secondary-foreground)}
+.dealer-header-spacer{display:none}
+.dealer-header-brand{display:flex;min-width:0;align-items:center;justify-content:flex-start}
 .dealer-header-actions{display:flex;min-width:0;align-items:center;justify-content:flex-end}
 .dealer-brand-home{min-width:0;flex:none;border:0;background:transparent;padding:0;color:inherit;line-height:0}
 .dealer-brand-home:focus-visible{border-radius:4px;outline:3px solid var(--dealer-primary);outline-offset:4px}

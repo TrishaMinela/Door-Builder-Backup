@@ -16,6 +16,7 @@ const dealer = {
   logo_url: null,
   logo_light_url: 'https://cdn.example.invalid/dealer-light.png',
   logo_generated_light_url: 'https://cdn.example.invalid/dealer-generated-light.png',
+  logo_placement: 'hero',
   primary_color: '#2456a6',
   secondary_color: '#f0b429',
   website: 'https://dealer.example.com/home',
@@ -58,6 +59,7 @@ assert.deepEqual(available.body, {
     companyName: dealer.company_name,
     logoUrl: dealer.logo_url,
     logoLightUrl: dealer.logo_light_url,
+    logoPlacement: 'hero',
     primaryColor: dealer.primary_color,
     secondaryColor: dealer.secondary_color,
     websiteUrl: 'https://dealer.example.com/home',
@@ -118,12 +120,16 @@ assert.deepEqual(dealerLogoPlacement(publicBrand), {
   logoUrl: dealer.logo_light_url,
   heroUsesDarkSurface: true,
 })
-assert.deepEqual(dealerLogoPlacement({ ...publicBrand, logoUrl: 'https://cdn.example.invalid/normal.png', logoLightUrl: null, primaryColor: '#111827', secondaryColor: '#111827' }), {
-  placement: 'hero',
+assert.deepEqual(dealerLogoPlacement({ ...publicBrand, logoPlacement: 'header', logoUrl: 'https://cdn.example.invalid/normal.png', logoLightUrl: null, primaryColor: '#111827', secondaryColor: '#111827' }), {
+  placement: 'header',
   headerIsDark: true,
   logoUrl: 'https://cdn.example.invalid/normal.png',
   heroUsesDarkSurface: false,
 })
+const invalidPlacement = await invoke(dealer.slug, [{ ...dealer, logo_placement: 'automatic' }])
+assert.equal((invalidPlacement.body as { dealer: PublicDealerBrand }).dealer.logoPlacement, 'hero')
+const otherDealerPlacement = await invoke(dealer.slug, [{ ...dealer, slug: dealer.slug, logo_placement: 'header' }])
+assert.equal((otherDealerPlacement.body as { dealer: PublicDealerBrand }).dealer.logoPlacement, 'header')
 
 const unsafeWebsite = await invoke(dealer.slug, [{ ...dealer, website: 'javascript:alert(1)' }])
 assert.equal((unsafeWebsite.body as { dealer: PublicDealerBrand }).dealer.websiteUrl, null)

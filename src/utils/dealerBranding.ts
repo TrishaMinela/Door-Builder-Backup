@@ -74,20 +74,21 @@ export function brandColorContrast(first: string | null, second: string | null) 
 
 export function dealerLogoPlacement(brand: PublicDealerBrand): DealerLogoPlacement {
   const headerIsDark = !isLightBrandColor(safeColor(brand.secondaryColor, '#05040b'))
-  const preferredLogo = headerIsDark ? brand.logoLightUrl : brand.logoUrl
-  const fallbackLogo = headerIsDark ? brand.logoUrl : brand.logoLightUrl
-
-  if (preferredLogo) return { placement: 'header', headerIsDark, logoUrl: preferredLogo, heroUsesDarkSurface: false }
-  if (!fallbackLogo) return { placement: 'header', headerIsDark, logoUrl: null, heroUsesDarkSurface: false }
-
-  // A light/white logo without a normal counterpart is never placed on a light
-  // header. A neutral dark hero card is the deterministic safe surface.
-  if (!headerIsDark) return { placement: 'hero', headerIsDark, logoUrl: fallbackLogo, heroUsesDarkSurface: true }
-
-  const likelyReadable = brandColorContrast(brand.primaryColor, brand.secondaryColor) >= 3
-  return likelyReadable
-    ? { placement: 'header', headerIsDark, logoUrl: fallbackLogo, heroUsesDarkSurface: false }
-    : { placement: 'hero', headerIsDark, logoUrl: fallbackLogo, heroUsesDarkSurface: !brand.logoUrl && Boolean(brand.logoLightUrl) }
+  const placement = brand.logoPlacement === 'header' ? 'header' : 'hero'
+  if (placement === 'header') {
+    return {
+      placement,
+      headerIsDark,
+      logoUrl: headerIsDark ? brand.logoLightUrl || brand.logoUrl : brand.logoUrl || brand.logoLightUrl,
+      heroUsesDarkSurface: false,
+    }
+  }
+  return {
+    placement,
+    headerIsDark,
+    logoUrl: brand.logoUrl || brand.logoLightUrl,
+    heroUsesDarkSurface: !brand.logoUrl && Boolean(brand.logoLightUrl),
+  }
 }
 
 export function isLightBrandColor(value: string | null) {
