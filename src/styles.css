@@ -1978,8 +1978,11 @@ body{overflow:hidden}
 .dealer-hero-logo .dealer-brand-mark{width:100%;justify-content:center}
 .dealer-hero-logo .dealer-brand-mark>img{max-width:min(480px,78vw);max-height:140px}
 .dealer-hero-logo .dealer-brand-fallback-name{max-width:min(320px,68vw);font-size:16px;white-space:normal;text-align:center}
-.dealer-logo-in-hero>header{grid-template-columns:minmax(0,1fr) auto}
-.dealer-logo-in-hero>header .dealer-header-spacer,.dealer-logo-in-hero>header .dealer-header-brand{display:none}
+.home-app.dealer-logo-in-hero>header{grid-template-columns:minmax(0,1fr) auto}
+.home-app.dealer-logo-in-hero>header .dealer-header-spacer,.home-app.dealer-logo-in-hero>header .dealer-header-brand{display:none}
+.dealer-cobranded:not(.home-app)>header{grid-template-columns:minmax(0,1fr) auto;padding-left:max(24px,calc((100vw - 1180px)/2));padding-right:max(24px,calc((100vw - 1180px)/2))}
+.dealer-cobranded:not(.home-app)>header .dealer-header-spacer{display:none}
+.dealer-cobranded:not(.home-app)>header .dealer-header-brand{justify-content:flex-start}
 .dealer-logo-in-hero .home-hero{grid-template-columns:1fr;background:#fff}
 .dealer-logo-in-hero .home-hero-copy{width:min(900px,100%);margin:0 auto;padding:clamp(58px,7vw,92px) clamp(24px,6vw,80px) 42px;align-items:center;text-align:center}
 .dealer-logo-in-hero .home-hero-copy h1{max-width:760px}

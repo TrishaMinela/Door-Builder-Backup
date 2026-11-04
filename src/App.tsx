@@ -2050,6 +2050,11 @@ function DoorBuilderApp({ dealerSlug, dealerBrand }: { dealerSlug: string | null
   }
 
   const dealerLogoLayout = dealerBrand ? dealerLogoPlacement(dealerBrand) : null
+  const dealerHeaderLogo = dealerLogoLayout
+    ? screen === 'home'
+      ? dealerLogoLayout.logoUrl
+      : dealerLogoLayout.placement === 'header' ? dealerLogoLayout.logoUrl : null
+    : null
 
   return (
     <div
@@ -2062,8 +2067,8 @@ function DoorBuilderApp({ dealerSlug, dealerBrand }: { dealerSlug: string | null
         {dealerBrand ? <>
           <div className="dealer-header-spacer" aria-hidden="true" />
           <div className="dealer-header-brand">
-            {dealerLogoLayout?.placement === 'header' && <button className="dealer-brand-home" type="button" aria-label={`Go to ${dealerBrand.companyName} Door Builder home`} onClick={() => showScreen('home')}>
-              <DealerBrandMark brand={dealerBrand} onDarkBackground={dealerLogoLayout.headerIsDark} logoUrl={dealerLogoLayout.logoUrl} />
+            {(screen !== 'home' || dealerLogoLayout?.placement === 'header') && <button className="dealer-brand-home" type="button" aria-label={`Go to ${dealerBrand.companyName} Door Builder home`} onClick={() => showScreen('home')}>
+              <DealerBrandMark brand={dealerBrand} onDarkBackground={dealerLogoLayout?.headerIsDark ?? false} logoUrl={dealerHeaderLogo} />
             </button>}
           </div>
           <div className="dealer-header-actions">
