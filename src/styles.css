@@ -3883,6 +3883,35 @@ body:has(.customer-form-app),
 .active-door-leaf{display:flex;align-items:center;justify-content:center;background:#ededed;color:#666;border:1px solid #b8b8b8;font-size:10px;font-weight:600}
 .active-door-leaf.is-active{background:#252525;color:#fff;border-color:#252525}
 
+/* A selected product is one surface: the image, copy, and any lower finish
+   controls share one border and one elevation on the outer card wrapper. */
+.configuration-step .builder-options-scroll [data-equal-product-grid] > :is(.option-card,.glass-choice-card,.hardware-option-card){
+  --selected-card-accent:var(--peacock);
+  --selected-card-shadow:0 9px 22px rgb(13 102 108 / 18%);
+  overflow:hidden;border-radius:var(--radius-card);isolation:isolate;
+}
+.configuration-step .builder-options-scroll [data-equal-product-grid] > :is(.option-card,.glass-choice-card,.hardware-option-card):hover{
+  border-color:#aab9bc;box-shadow:0 5px 14px rgb(5 4 11 / 9%);
+}
+.configuration-step .builder-options-scroll [data-equal-product-grid] > :is(.option-card,.glass-choice-card,.hardware-option-card).selected,
+.configuration-step .builder-options-scroll [data-equal-product-grid] > :is(.option-card,.glass-choice-card,.hardware-option-card).selected:hover{
+  border:1px solid var(--selected-card-accent);outline:2px solid var(--selected-card-accent);outline-offset:-2px;
+  box-shadow:var(--selected-card-shadow),inset 4px 0 0 var(--gold);transform:none;
+}
+.configuration-step .builder-options-scroll [data-equal-product-grid] > :is(.option-card,.glass-choice-card,.hardware-option-card) > :is(.glass-card-main,.hardware-card-main),
+.configuration-step .builder-options-scroll [data-equal-product-grid] > :is(.option-card,.glass-choice-card,.hardware-option-card) > :is(.hardware-finish-options,.glass-caming-options){
+  border-radius:0;box-shadow:none;
+}
+.configuration-step .builder-options-scroll [data-equal-product-grid] > .option-card:focus-visible,
+.configuration-step .builder-options-scroll [data-equal-product-grid] > .option-card:has(.option-card-select:focus-visible),
+.configuration-step .builder-options-scroll [data-equal-product-grid] > :is(.glass-choice-card,.hardware-option-card):has(> :is(.glass-card-main,.hardware-card-main):focus-visible){
+  outline:3px solid var(--gold);outline-offset:3px;
+}
+.dealer-cobranded .configuration-step .builder-options-scroll [data-equal-product-grid] > :is(.option-card,.glass-choice-card,.hardware-option-card){
+  --selected-card-accent:var(--dealer-primary);
+  --selected-card-shadow:0 9px 22px color-mix(in srgb,var(--dealer-primary) 22%,transparent);
+}
+
 /* Mirror Savannah's complete product, without reversing its UI or applying a
    second per-layer interior transformation. Preserve responsive transform scale. */
 .door-frame.savannah-interior-mirrored{scale:-1 1}

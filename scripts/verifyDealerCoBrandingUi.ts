@@ -86,6 +86,14 @@ try {
     await page.screenshot({ path: `/tmp/hgi-dealer-cobranding/dealer-${width}.png`, fullPage: true })
     await page.getByRole('button', { name: 'Start Building Your Door' }).click()
     await page.locator('.builder-panel').waitFor()
+    const firstDealerCard = page.locator('[data-equal-product-grid] > .option-card').first()
+    await firstDealerCard.click()
+    const dealerSelectionStyle = await firstDealerCard.evaluate(element => {
+      const style = getComputedStyle(element)
+      return { borderColor: style.borderColor, boxShadow: style.boxShadow }
+    })
+    assert.equal(dealerSelectionStyle.borderColor, 'rgb(36, 86, 166)', `Dealer primary controls the full selected card at ${width}px`)
+    assert.notEqual(dealerSelectionStyle.boxShadow, 'none', `Dealer selected card keeps full-surface elevation at ${width}px`)
     assert.equal(await page.locator('.dealer-cobranded .dealer-brand-mark').count(), 1)
     assert.equal(await page.locator('header .dealer-brand-mark').count(), 1, `Interior dealer logo remains visible at ${width}px`)
     const interiorHeader = await page.locator('header').boundingBox()

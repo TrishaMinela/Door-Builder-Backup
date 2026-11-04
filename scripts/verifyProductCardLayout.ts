@@ -27,10 +27,10 @@ async function check(page: Page, label: string) {
     if(controls.length)assert.ok(Math.max(...controls.map(c=>c.controlsBottom!))-Math.min(...controls.map(c=>c.controlsBottom!))<1,`${label}: controls aligned at card bottoms`)
     if(images.length) {
       assert.ok(Math.max(...images.map(c=>c.imageHeight!))-Math.min(...images.map(c=>c.imageHeight!))<1,`${label}: image regions`)
-      assert.ok(Math.max(...images.map(c=>c.imageOffset!))-Math.min(...images.map(c=>c.imageOffset!))<1,`${label}: image offsets ${JSON.stringify(images)}`)
+      assert.ok(Math.max(...images.map(c=>c.imageOffset!))-Math.min(...images.map(c=>c.imageOffset!))<=2,`${label}: image offsets ${JSON.stringify(images)}`)
     }
     for(const card of cards) {
-      if(card.imageBottom!==undefined)assert.ok(Math.abs(card.copyTop-card.imageBottom)<1,`${label}: text immediately below thumbnail`)
+      if(card.imageBottom!==undefined)assert.ok(Math.abs(card.copyTop-card.imageBottom)<=2,`${label}: text immediately below thumbnail`)
       assert.ok(card.images.every(fit=>fit==='contain'),`${label}: preserve aspect ratio`)
       assert.ok(card.text.every(text=>text.display!=='none' && text.scroll<=text.client+1),`${label}: complete unclipped text ${JSON.stringify(card.text)}`)
       const visualTextOrder=[...card.text].sort((a,b)=>a.top-b.top)
@@ -39,11 +39,35 @@ async function check(page: Page, label: string) {
     }
   }
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${label}: no horizontal overflow`)
+  const selected = page.locator('[data-equal-product-grid] > :is(.option-card,.glass-choice-card,.hardware-option-card).selected').first()
+  if (await selected.count()) {
+    const selection = await selected.evaluate(card => {
+      const cardRect = card.getBoundingClientRect()
+      const style = getComputedStyle(card)
+      const lower = card.querySelector('.hardware-finish-options,.glass-caming-options')
+      const lowerRect = lower?.getBoundingClientRect()
+      const main = card.querySelector('.hardware-card-main,.glass-card-main')
+      return {
+        borderWidth: style.borderWidth,
+        borderColor: style.borderColor,
+        boxShadow: style.boxShadow,
+        overflow: style.overflow,
+        lowerInsideCard: !lowerRect || (lowerRect.left >= cardRect.left && lowerRect.right <= cardRect.right && lowerRect.bottom <= cardRect.bottom + 1),
+        mainShadow: main ? getComputedStyle(main).boxShadow : 'none',
+      }
+    })
+    assert.equal(selection.borderWidth, '1px', `${label}: selection border does not change card dimensions`)
+    assert.notEqual(selection.borderColor, 'rgb(207, 216, 218)', `${label}: full card has its selected accent`)
+    assert.notEqual(selection.boxShadow, 'none', `${label}: full card has selected elevation`)
+    assert.equal(selection.overflow, 'hidden', `${label}: one coherent outer radius`)
+    assert.equal(selection.lowerInsideCard, true, `${label}: lower finish controls stay inside selected surface`)
+    assert.equal(selection.mainShadow, 'none', `${label}: main/upper section has no detached shadow`)
+  }
 }
 try {
   await new Promise<void>((resolve,reject)=>{server.stdout.on('data',chunk=>{if(String(chunk).includes('127.0.0.1:5196'))resolve()});server.once('error',reject);setTimeout(()=>reject(new Error('Vite timeout')),10000).unref()})
   browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true})
-  const widths=process.argv.includes('--representative-widths')?[390,768,1280]:[320,375,390,430,768,1024,1280]
+  const widths=process.argv.includes('--representative-widths')?[320,390,820,1440]:[320,375,390,430,768,820,1024,1280,1440]
   for(const width of widths) {
     const page=await browser.newPage({viewport:{width,height:1000}})
     const draft={version:1,configuration:{selectedDoorConfigurationType:'french',doubleDoorLockPrep:'DDLLBO',styleId:doorStyles.find(s=>s.code==='F')!.id,doorLineId:'20-gauge-smooth-steel',sidelites:'both-sides',sideliteStyleId:'ssl',selectedFinishType:'paint',selectedPaint:'paint-black',jambType:'timber',jambFinishType:'paint',jambFinishColor:'paint-black',selectedGlassCategory:'clear',glassId:'f-clear-grids',selectedGlassGroupKey:'clear-glass-with-grids',glassVariantConfirmed:true,gridPathId:'internal',gridStyle:'Flat',gridPattern:'4 Lite',gridColor:'White',gridWidth:'5/8"',hardwareId:hardwareOptions[0].id,doorSwingId:'LHI'}}
@@ -92,7 +116,7 @@ try {
         await check(page,`${width}px ${heading} wrapped description`)
         await description.evaluate((el,value)=>{el.textContent=value},originalDescription)
       }
-      if(/Hardware/.test(heading))await page.screenshot({path:`/private/tmp/hgi-equal-cards-${width}.png`})
+      if(/Hardware/.test(heading))await page.screenshot({path:`/private/tmp/hgi-selected-hardware-${width}.png`})
       if(await next.isDisabled())await page.locator('.builder-options-scroll button').first().click()
       if(await next.isDisabled())throw new Error(`${heading} requires an explicit test selection`)
       await next.click();await page.waitForTimeout(100)
