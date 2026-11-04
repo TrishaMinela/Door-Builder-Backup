@@ -124,6 +124,13 @@ try {
   assert.equal(darkFooterLogoStyle.objectFit, 'contain')
   assert.equal(darkFooterLogoStyle.overflow, 'visible')
   assert.ok(darkFooterLogoStyle.width >= 180)
+  const providerLabelStyle = await darkPage.locator('.site-footer .hgi-attribution>span').evaluate(element => {
+    const style = getComputedStyle(element)
+    const rect = element.getBoundingClientRect()
+    return { whiteSpace: style.whiteSpace, height: rect.height, lineHeight: Number.parseFloat(style.lineHeight) }
+  })
+  assert.equal(providerLabelStyle.whiteSpace, 'nowrap')
+  assert.ok(providerLabelStyle.height <= providerLabelStyle.lineHeight + 1)
   const phoneBox = await darkPage.getByRole('link', { name: 'Call Home Guard Industries at 1-800-525-1885' }).boundingBox()
   const websiteBox = await darkPage.getByRole('link', { name: 'Visit the Home Guard Industries website' }).boundingBox()
   assert.ok(phoneBox && websiteBox && websiteBox.y > phoneBox.y + phoneBox.height)

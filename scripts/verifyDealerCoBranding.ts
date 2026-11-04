@@ -138,7 +138,7 @@ assert.match(appSource, /className="dealer-website-link"/)
 assert.doesNotMatch(appSource, /header>[\s\S]*?<HgiAttribution/)
 assert.match(footerSource, /!dealerBrand && <a href="mailto:/)
 assert.match(footerSource, /!dealerBrand && <a href="https:\/\/www\.google\.com\/maps/)
-assert.match(attributionSource, /Door Builder &amp; Visualizer<br \/>provided by/)
+assert.match(attributionSource, /Door Builder & Visualizer provided by/)
 assert.match(attributionSource, /hgi-logo-white\.png/)
 assert.match(attributionSource, /hgi-logo-black\.webp/)
 

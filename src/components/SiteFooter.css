@@ -46,8 +46,11 @@ html:has(.shared-site-footer),body:has(.shared-site-footer){height:auto;min-heig
   .shared-site-footer .site-footer-feedback{grid-column:1/-1;justify-self:end}
 }
 @media(min-width:1101px){
-  .dealer-cobranded>.shared-site-footer.site-footer{grid-template-columns:minmax(0,7fr) minmax(230px,6fr) minmax(0,7fr);gap:48px;min-height:190px!important;padding:42px max(24px,calc((100vw - 1180px)/2))!important}
+  .dealer-cobranded>.shared-site-footer.site-footer{grid-template-columns:minmax(400px,8fr) minmax(230px,5fr) minmax(290px,7fr);gap:52px;min-height:190px!important;padding:42px max(24px,calc((100vw - 1180px)/2))!important}
   .dealer-cobranded>.shared-site-footer .site-footer-branding{justify-self:start}
+  .dealer-cobranded>.shared-site-footer .hgi-attribution>span{min-width:max-content;white-space:nowrap}
+  .dealer-cobranded>.shared-site-footer .hgi-attribution>a{width:200px}
+  .dealer-cobranded>.shared-site-footer .hgi-attribution>a>img{max-width:200px;max-height:62px}
   .dealer-cobranded>.shared-site-footer .site-footer-contact{grid-template-columns:1fr;justify-self:center;gap:14px}
   .dealer-cobranded>.shared-site-footer :is(.site-footer-direct,.site-footer-location){gap:14px}
   .dealer-cobranded>.shared-site-footer .site-footer-contact a{gap:12px;font-size:15px}
