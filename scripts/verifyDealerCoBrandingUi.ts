@@ -78,6 +78,21 @@ try {
     assert.equal(await page.locator('header').evaluate(element => getComputedStyle(element).color), 'rgb(16, 20, 23)')
     assert.equal(await page.locator('.start-building').evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(36, 86, 166)')
     assert.equal(await page.locator('.site-footer').evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(240, 180, 41)')
+    const footerBox = await page.locator('.site-footer').boundingBox()
+    const providerBox = await page.locator('.site-footer-branding').boundingBox()
+    const contactBox = await page.locator('.site-footer-contact').boundingBox()
+    const utilityBox = await page.locator('.site-footer-feedback').boundingBox()
+    assert.ok(footerBox && providerBox && contactBox && utilityBox)
+    if (width >= 1101) {
+      assert.ok(utilityBox.x < providerBox.x && providerBox.x < contactBox.x, `Dealer footer uses utilities / provider / contact columns at ${width}px`)
+      assert.ok(Math.abs(providerBox.x + providerBox.width / 2 - (footerBox.x + footerBox.width / 2)) < 24, `Provider block anchors the footer center at ${width}px`)
+      const centers = [utilityBox, providerBox, contactBox].map(box => box.y + box.height / 2)
+      assert.ok(Math.max(...centers) - Math.min(...centers) < 26, `Dealer footer columns share one vertical center at ${width}px`)
+    } else if (width <= 700) {
+      assert.ok(providerBox.y < contactBox.y && contactBox.y < utilityBox.y, `Dealer footer mobile order is provider / contact / utilities at ${width}px`)
+      const footerCenter = footerBox.x + footerBox.width / 2
+      for (const box of [providerBox, contactBox, utilityBox]) assert.ok(Math.abs(box.x + box.width / 2 - footerCenter) < 24, `Dealer footer section is centered at ${width}px`)
+    }
     assert.match(await page.locator('.home-hero h1').evaluate(element => getComputedStyle(element).fontFamily),/Georgia/)
     assert.match(await page.locator('.home-hero-copy>p').evaluate(element => getComputedStyle(element).fontFamily),/Arial/)
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
@@ -153,7 +168,7 @@ try {
   const providerBox = await darkPage.locator('.site-footer-branding').boundingBox()
   const contactBox = await darkPage.locator('.site-footer-contact').boundingBox()
   const utilityBox = await darkPage.locator('.site-footer-feedback').boundingBox()
-  assert.ok(providerBox && contactBox && utilityBox && providerBox.x < contactBox.x && contactBox.x < utilityBox.x)
+  assert.ok(providerBox && contactBox && utilityBox && utilityBox.x < providerBox.x && providerBox.x < contactBox.x)
   const verticalCenters = [providerBox, contactBox, utilityBox].map(box => box.y + box.height / 2)
   assert.ok(Math.max(...verticalCenters) - Math.min(...verticalCenters) < 26, 'Dealer footer columns share one vertical center')
   const phoneBox = await darkPage.getByRole('link', { name: 'Call Home Guard Industries at 1-800-525-1885' }).boundingBox()
