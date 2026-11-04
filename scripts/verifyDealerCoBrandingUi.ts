@@ -27,7 +27,7 @@ try {
   assert.equal(await rootPage.locator('header').evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(255, 255, 255)')
   await rootPage.close()
 
-  for (const [width, height] of [[1440, 1000], [820, 1180], [390, 844], [320, 740]]) {
+  for (const [width, height] of [[1440, 1000], [1024, 900], [820, 1180], [390, 844], [320, 740]]) {
     const page = await browser.newPage({ viewport: { width, height } })
     const errors: string[] = []
     page.on('pageerror', error => errors.push(error.message))
@@ -229,7 +229,7 @@ try {
   assert.equal(await invalidPage.locator('.dealer-brand-mark').count(), 0)
   await invalidPage.close()
 
-  for (const [width, height] of [[1440, 1000], [820, 1180], [390, 844], [320, 740]]) {
+  for (const [width, height] of [[1440, 1000], [1024, 900], [820, 1180], [390, 844], [320, 740]]) {
     const loadingPage = await browser.newPage({ viewport: { width, height } })
     await loadingPage.route('**/api/dealer-context?slug=loading-dealer', async route => {
       await new Promise(resolve => setTimeout(resolve, 700))

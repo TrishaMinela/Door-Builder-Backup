@@ -10,6 +10,7 @@ type DealerRow = {
   company_name: string
   logo_url: string | null
   logo_light_url: string | null
+  logo_generated_light_url: string | null
   primary_color: string | null
   secondary_color: string | null
   website: string | null
@@ -48,7 +49,7 @@ async function resolveDealer(dealerSlug: unknown): Promise<DealerRow | null> {
   if (!isValidDealerSlug(slug)) throw new DealerResolutionError(400, 'This dealer link is unavailable.')
 
   const { supabaseUrl, serviceRoleKey } = supabaseCredentials()
-  const query = new URLSearchParams({ select: 'id,is_active,slug,company_name,logo_url,logo_light_url,primary_color,secondary_color,website,heading_font_family,heading_font_weight,heading_font_size,body_font_family,body_font_weight,body_font_size,custom_heading_font_url,custom_heading_font_name,custom_heading_font_weight,custom_body_font_url,custom_body_font_name,custom_body_font_weight', slug: `eq.${slug}`, limit: '2' })
+  const query = new URLSearchParams({ select: 'id,is_active,slug,company_name,logo_url,logo_light_url,logo_generated_light_url,primary_color,secondary_color,website,heading_font_family,heading_font_weight,heading_font_size,body_font_family,body_font_weight,body_font_size,custom_heading_font_url,custom_heading_font_name,custom_heading_font_weight,custom_body_font_url,custom_body_font_name,custom_body_font_weight', slug: `eq.${slug}`, limit: '2' })
   const result = await fetch(`${supabaseUrl}/rest/v1/dealers?${query}`, {
     headers: { apikey: serviceRoleKey, Authorization: `Bearer ${serviceRoleKey}` },
   })
@@ -72,7 +73,7 @@ export async function resolveDealerBrand(dealerSlug: unknown): Promise<PublicDea
     slug: dealer.slug,
     companyName: dealer.company_name,
     logoUrl: dealer.logo_url,
-    logoLightUrl: dealer.logo_light_url,
+    logoLightUrl: dealer.logo_light_url || dealer.logo_generated_light_url,
     primaryColor: dealer.primary_color,
     secondaryColor: dealer.secondary_color,
     websiteUrl: safePublicWebsite(dealer.website),

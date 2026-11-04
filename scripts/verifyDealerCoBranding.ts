@@ -15,6 +15,7 @@ const dealer = {
   company_name: 'TEST Dealer - Portal Access QA',
   logo_url: null,
   logo_light_url: 'https://cdn.example.invalid/dealer-light.png',
+  logo_generated_light_url: 'https://cdn.example.invalid/dealer-generated-light.png',
   primary_color: '#2456a6',
   secondary_color: '#f0b429',
   website: 'https://dealer.example.com/home',
@@ -86,6 +87,9 @@ assert.equal(isValidDealerSlug('test-dealer-portal-access-qa'), true)
 const publicBrand = (available.body as { dealer: PublicDealerBrand }).dealer
 assert.equal(dealerLogo(publicBrand, true), dealer.logo_light_url)
 assert.equal(dealerLogo(publicBrand, false), dealer.logo_light_url)
+
+const generatedFallback = await invoke(dealer.slug, [{ ...dealer, logo_light_url: null }])
+assert.equal((generatedFallback.body as { dealer: PublicDealerBrand }).dealer.logoLightUrl, dealer.logo_generated_light_url)
 assert.equal(dealerInitials(dealer.company_name), 'TD')
 assert.equal(isLightBrandColor(dealer.secondary_color), true)
 assert.deepEqual(dealerBrandStyle(publicBrand), {
