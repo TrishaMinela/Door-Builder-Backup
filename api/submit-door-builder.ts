@@ -46,12 +46,12 @@ function splitName(fullName: string) {
 }
 
 const DEALER_LEAD_SOURCES: Record<string, string> = {
-  'americas-best-windows-and-doors': 'ab-door-builder-lead',
-  wdm: 'wdm-door-builder-lead',
+  'americas-best-windows-and-doors': 'AB',
+  wdm: 'WDM',
 }
 
 function leadAttribution(dealer: Awaited<ReturnType<typeof resolveDealerIdentity>>) {
-  if (!dealer) return { lead_source: 'hgi-door-builder-lead', dealer_name: 'Home Guard Industries', dealer_slug: '' }
+  if (!dealer) return { lead_source: 'HGI', dealer_name: 'Home Guard Industries', dealer_slug: '' }
   return {
     lead_source: DEALER_LEAD_SOURCES[dealer.slug] ?? `${dealer.slug}-door-builder-lead`,
     dealer_name: dealer.companyName,
@@ -81,10 +81,10 @@ function validatedZapierUrl(value: string | undefined) {
   return url.href
 }
 
-function zapierDestinations(leadSource: string) {
+function zapierDestinations(dealerSlug: string) {
   const destinations = [validatedZapierUrl(process.env.ZAPIER_DOOR_BUILDER_WEBHOOK_URL)]
-  if (leadSource === 'ab-door-builder-lead') destinations.push(validatedZapierUrl(process.env.ZAPIER_AB_DOOR_BUILDER_WEBHOOK_URL))
-  if (leadSource === 'wdm-door-builder-lead') destinations.push(validatedZapierUrl(process.env.ZAPIER_WDM_DOOR_BUILDER_WEBHOOK_URL))
+  if (dealerSlug === 'americas-best-windows-and-doors') destinations.push(validatedZapierUrl(process.env.ZAPIER_AB_DOOR_BUILDER_WEBHOOK_URL))
+  if (dealerSlug === 'wdm') destinations.push(validatedZapierUrl(process.env.ZAPIER_WDM_DOOR_BUILDER_WEBHOOK_URL))
   if (new Set(destinations).size !== destinations.length) throw new Error('Zapier destinations must be unique.')
   return destinations
 }
@@ -153,7 +153,7 @@ export default async function handler(request: ApiRequest, response: ApiResponse
   const attributedPayload = { ...payload, ...leadAttribution(dealer) }
   const dealerId = dealer?.id ?? null
   let webhookDestinations: string[]
-  try { webhookDestinations = zapierDestinations(attributedPayload.lead_source) }
+  try { webhookDestinations = zapierDestinations(attributedPayload.dealer_slug) }
   catch {
     response.status(502).json({ error: 'Submission could not be completed. Please try again.', destinations: { supabase: 'skipped', zapier: 'failed' } })
     return
