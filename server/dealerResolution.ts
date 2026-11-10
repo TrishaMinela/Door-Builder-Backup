@@ -67,6 +67,11 @@ export async function resolveDealerId(dealerSlug: unknown): Promise<string | nul
   return dealer?.id ?? null
 }
 
+export async function resolveDealerIdentity(dealerSlug: unknown): Promise<{ id: string; slug: string; companyName: string } | null> {
+  const dealer = await resolveDealer(dealerSlug)
+  return dealer ? { id: dealer.id, slug: dealer.slug, companyName: dealer.company_name } : null
+}
+
 export async function resolveDealerBrand(dealerSlug: unknown): Promise<PublicDealerBrand | null> {
   const dealer = await resolveDealer(dealerSlug)
   if (!dealer) return null

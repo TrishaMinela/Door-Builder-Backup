@@ -1,4 +1,4 @@
-import { DealerResolutionError, resolveDealerId } from '../server/dealerResolution.js'
+import { DealerResolutionError, resolveDealerIdentity } from '../server/dealerResolution.js'
 import { isHiddenDecorativeGlass } from '../src/data/customerGlassAvailability.js'
 import { assertCustomerFinish } from '../src/utils/customerFinish.js'
 import type { Finish } from '../src/types.js'
@@ -12,6 +12,7 @@ const SUBMISSION_FIELDS = [
   'door_configuration', 'door_line', 'door_style', 'sidelite_placement', 'sidelite_slab', 'sidelite_glass',
   'main_door_glass', 'door_finish_type', 'door_finish_color', 'jamb_type', 'jamb_finish_type',
   'jamb_finish_color', 'hardware', 'lock_setup', 'door_swing', 'hinge_option',
+  'lead_source', 'dealer_name', 'dealer_slug',
 ] as const
 
 const MAX_CONFIGURATION_BYTES = 128 * 1024
@@ -44,6 +45,20 @@ function splitName(fullName: string) {
   return { firstName: parts[0] ?? '', lastName: parts.slice(1).join(' ') }
 }
 
+const DEALER_LEAD_SOURCES: Record<string, string> = {
+  'americas-best-windows-and-doors': 'ab-door-builder-lead',
+  wdm: 'wdm-door-builder-lead',
+}
+
+function leadAttribution(dealer: Awaited<ReturnType<typeof resolveDealerIdentity>>) {
+  if (!dealer) return { lead_source: 'hgi-door-builder-lead', dealer_name: 'Home Guard Industries', dealer_slug: '' }
+  return {
+    lead_source: DEALER_LEAD_SOURCES[dealer.slug] ?? `${dealer.slug}-door-builder-lead`,
+    dealer_name: dealer.companyName,
+    dealer_slug: dealer.slug,
+  }
+}
+
 function logDevelopmentSubmission(payload: ZapierPayload) {
   if (process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV === 'production') return
   console.info('HGI Door Builder submission', {
@@ -58,11 +73,26 @@ function logDevelopmentSubmission(payload: ZapierPayload) {
   })
 }
 
-async function submitToZapier(payload: ZapierPayload) {
-  const webhookUrl = process.env.ZAPIER_DOOR_BUILDER_WEBHOOK_URL
-  if (!webhookUrl) throw new Error('Zapier destination is not configured.')
-  const result = await fetch(webhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-  if (!result.ok) throw new Error(`Zapier returned HTTP ${result.status}.`)
+function validatedZapierUrl(value: string | undefined) {
+  if (!value) throw new Error('Zapier destination is not configured.')
+  let url: URL
+  try { url = new URL(value) } catch { throw new Error('Zapier destination is invalid.') }
+  if (url.protocol !== 'https:' || url.hostname !== 'hooks.zapier.com') throw new Error('Zapier destination is invalid.')
+  return url.href
+}
+
+function zapierDestinations(leadSource: string) {
+  const destinations = [validatedZapierUrl(process.env.ZAPIER_DOOR_BUILDER_WEBHOOK_URL)]
+  if (leadSource === 'ab-door-builder-lead') destinations.push(validatedZapierUrl(process.env.ZAPIER_AB_DOOR_BUILDER_WEBHOOK_URL))
+  if (leadSource === 'wdm-door-builder-lead') destinations.push(validatedZapierUrl(process.env.ZAPIER_WDM_DOOR_BUILDER_WEBHOOK_URL))
+  if (new Set(destinations).size !== destinations.length) throw new Error('Zapier destinations must be unique.')
+  return destinations
+}
+
+async function submitToZapier(payload: ZapierPayload, destinations: string[]) {
+  const body = JSON.stringify(payload)
+  const results = await Promise.all(destinations.map(webhookUrl => fetch(webhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body })))
+  if (results.some(result => !result.ok)) throw new Error('One or more Zapier destinations rejected the submission.')
 }
 
 async function submitToSupabase(submissionId: string, payload: ZapierPayload, doorConfiguration: JsonObject, dealerId: string | null) {
@@ -112,17 +142,25 @@ export default async function handler(request: ApiRequest, response: ApiResponse
 
   logDevelopmentSubmission(payload)
 
-  let dealerId: string | null
+  let dealer: Awaited<ReturnType<typeof resolveDealerIdentity>>
   try {
-    dealerId = await resolveDealerId(source.dealerSlug)
+    dealer = await resolveDealerIdentity(source.dealerSlug)
   } catch (reason) {
     const status = reason instanceof DealerResolutionError ? reason.status : 502
     response.status(status).json({ error: status === 502 ? 'Dealer lookup is unavailable. Please try again.' : 'This dealer link is unavailable.' })
     return
   }
+  const attributedPayload = { ...payload, ...leadAttribution(dealer) }
+  const dealerId = dealer?.id ?? null
+  let webhookDestinations: string[]
+  try { webhookDestinations = zapierDestinations(attributedPayload.lead_source) }
+  catch {
+    response.status(502).json({ error: 'Submission could not be completed. Please try again.', destinations: { supabase: 'skipped', zapier: 'failed' } })
+    return
+  }
 
   try {
-    await submitToSupabase(submissionId, payload, doorConfiguration, dealerId)
+    await submitToSupabase(submissionId, attributedPayload, doorConfiguration, dealerId)
   } catch (reason) {
     console.error('Door Builder supabase submission failed.', errorMessage(reason))
     response.status(502).json({
@@ -133,7 +171,7 @@ export default async function handler(request: ApiRequest, response: ApiResponse
   }
 
   try {
-    await submitToZapier(payload)
+    await submitToZapier(attributedPayload, webhookDestinations)
   } catch (reason) {
     console.error('Door Builder zapier submission failed.', errorMessage(reason))
     response.status(502).json({

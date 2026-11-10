@@ -26,7 +26,7 @@ try {
   process.env.VERCEL_ENV = 'production'
   process.env.SUPABASE_URL = 'https://supabase.example.invalid'
   process.env.SUPABASE_SERVICE_ROLE_KEY = 'mock-only'
-  process.env.ZAPIER_DOOR_BUILDER_WEBHOOK_URL = 'https://zapier.example.invalid/hook'
+  process.env.ZAPIER_DOOR_BUILDER_WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/test/master/'
   delete process.env.LEADS_DELIVERY_MODE
   const records = new Map()
   let calls = [], supabaseStatus = 201, zapierStatus = 200, dealerActive = true, networkFailure = false, zapierTimeout = false
@@ -34,7 +34,8 @@ try {
     const target = String(url)
     if (target.startsWith('https://supabase.example.invalid/rest/v1/dealers?')) {
       calls.push('dealer')
-      return Response.json([{ id: '11111111-1111-4111-8111-111111111111', is_active: dealerActive }])
+      const requestedSlug = new URL(target).searchParams.get('slug')?.replace(/^eq\./, '') ?? 'example-dealer'
+      return Response.json([{ id: '11111111-1111-4111-8111-111111111111', slug: requestedSlug, company_name: 'Example Dealer', is_active: dealerActive }])
     }
     if (target === 'https://supabase.example.invalid/rest/v1/leads?on_conflict=submission_id') {
       calls.push('supabase')
@@ -44,7 +45,7 @@ try {
       if (supabaseStatus < 300 && !records.has(row.submission_id)) records.set(row.submission_id, row)
       return new Response(null, { status: supabaseStatus })
     }
-    assert.equal(target, 'https://zapier.example.invalid/hook', 'Unexpected outbound destination')
+    assert.equal(target, 'https://hooks.zapier.com/hooks/catch/test/master/', 'Unexpected outbound destination')
     calls.push('zapier')
     if (zapierTimeout) throw new DOMException('Mock webhook timeout', 'TimeoutError')
     return new Response(null, { status: zapierStatus })
